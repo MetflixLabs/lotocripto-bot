@@ -8,6 +8,7 @@ const participantService = new ParticipantService()
 const sockets = (io: SocketIO.Server): void => {
   io.on(SocketEnum.CONNECT, (socket: Socket) => {
     const socketId = socket.id
+    console.log('connected id', socketId)
 
     socket.on(SocketEnum.JOIN_ROUND, data => {
       const { userId } = data

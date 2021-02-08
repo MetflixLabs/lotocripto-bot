@@ -9,7 +9,8 @@ import { SocketEnum } from './enums/SocketEnum'
 
 const app = express()
 const server = http.createServer(app)
-const io = new socketio({ path: '/socketio' }).listen(server)
+const path = process.env.SOCKETIO_PATH
+const io = new socketio({ path }).listen(server)
 
 // client tests
 const socket = ioClient('http://localhost:4000', { path: '/socketio' })

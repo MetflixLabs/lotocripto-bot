@@ -1,4 +1,6 @@
 import 'dotenv/config'
 import { server } from './app'
 
-server.listen(4000)
+const port = process.env.PORT
+
+server.listen(port)
