@@ -3,4 +3,6 @@ import { server } from './app'
 
 const port = process.env.PORT
 
-server.listen(port)
+const startServer = async () => (await server()).listen(port)
+
+startServer()

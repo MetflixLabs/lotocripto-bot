@@ -5,7 +5,7 @@ import { EndpointEnum } from '../../enums/EndpointEnum'
 export class AccessService {
   async login(name: string, password: string): Promise<AxiosResponse> {
     try {
-      const res = await lotocriptoApi.post(EndpointEnum.PARTICIPANTS, { name, password })
+      const res = await lotocriptoApi.post(EndpointEnum.LOGIN, { name, password })
 
       return res.data
     } catch (error) {
