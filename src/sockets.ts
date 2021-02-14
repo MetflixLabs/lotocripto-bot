@@ -6,17 +6,27 @@ import { ParticipantService } from './services/implementations/ParticipantServic
 const participantService = new ParticipantService()
 
 const sockets = (io: SocketIO.Server): void => {
-  io.on(SocketEnum.CONNECT, (socket: Socket) => {
-    const socketId = socket.id
-    console.log('connected id', socketId)
+  try {
+    io.on(SocketEnum.CONNECT, async (socket: Socket) => {
+      console.log('res', res)
 
-    socket.on(SocketEnum.JOIN_ROUND, data => {
-      const { userId } = data
+      const socketId = socket.id
+      console.log('CONNECTED', socketId)
 
-      console.log('JOIN_ROUND', data)
-      // participantService.add(userId, socketId)
+      socket.on(SocketEnum.JOIN_ROUND, async data => {
+        const { userId } = data
+
+        console.log('JOIN_ROUND', data)
+        // await participantService.add(userId, socketId)
+      })
+
+      socket.on(SocketEnum.DISCONNECT, async () => {
+        // await participantService.deleteBySocketId(socketId)
+      })
     })
-  })
+  } catch (error) {
+    return error.message
+  }
 }
 
 export { sockets }
