@@ -12,12 +12,20 @@ export const server = async (): Promise<http.Server> => {
     const app = express()
     const server = http.createServer(app)
     const path = process.env.SOCKETIO_PATH
-    const io = new socketio({ path }).listen(server)
+    const io = new socketio({
+      path,
+      cors: {
+        origin: ['https://lotocripto.com.br', 'http://localhost:8000'],
+        methods: ['GET', 'POST'],
+        credentials: true
+      },
+      allowEIO3: true
+    }).listen(server)
 
     // client tests
-    const socket = ioClient('http://localhost:4000', { path: '/socketio' })
+    // const socket = ioClient('http://localhost:4000', { path: '/socketio' })
 
-    socket.emit(SocketEnum.JOIN_ROUND, { userId: 1, socketId: '398721hjas' })
+    // socket.emit(SocketEnum.JOIN_ROUND, { userId: 1, socketId: '398721hjas' })
 
     sockets(io)
 
