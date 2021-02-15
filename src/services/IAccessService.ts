@@ -1,5 +1,5 @@
-import { AxiosResponse } from 'axios'
+import { IOutputResult } from '../interfaces/IOutputResult'
 
 export interface IAccessService {
-  login(name: string, password: string): Promise<AxiosResponse>
+  login(name: string, password: string): Promise<IOutputResult>
 }

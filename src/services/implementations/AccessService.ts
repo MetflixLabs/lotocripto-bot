@@ -1,15 +1,15 @@
-import { AxiosResponse } from 'axios'
 import { lotocriptoApi } from '../../apis/lotocriptoApi'
 import { EndpointEnum } from '../../enums/EndpointEnum'
+import { IOutputResult } from '../../interfaces/IOutputResult'
 
 export class AccessService {
-  async login(name: string, password: string): Promise<AxiosResponse> {
+  async login(name: string, password: string): Promise<IOutputResult> {
     try {
-      const res = await lotocriptoApi.post(EndpointEnum.LOGIN, { name, password })
+      const axiosRes = await lotocriptoApi.post(EndpointEnum.LOGIN, { name, password })
 
-      return res.data
+      return axiosRes.data
     } catch (error) {
-      throw new Error(error.message)
+      throw new Error(error.response.data.notification.message)
     }
   }
 }

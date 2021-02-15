@@ -5,13 +5,13 @@ interface IPagination {
   totalRecords: number
 }
 
-interface IOutputNotification {
+interface INotification {
   success: boolean
   message?: string
 }
 
 export interface IOutputResult {
-  notification: IOutputNotification
+  notification: INotification
   pagination?: IPagination
   data?: unknown
 }

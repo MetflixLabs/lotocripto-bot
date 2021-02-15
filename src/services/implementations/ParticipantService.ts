@@ -1,32 +1,44 @@
 import { IParticipant } from '../../interfaces/IParticipant'
 import { IParticipantService } from '../IParticipantService'
 import { lotocriptoApi } from '../../apis/lotocriptoApi'
-import { AxiosResponse } from 'axios'
 import { EndpointEnum } from '../../enums/EndpointEnum'
+import { IOutputResult } from '../../interfaces/IOutputResult'
 
 export class ParticipantService implements IParticipantService {
-  async add(userId: string, socketId: string): Promise<AxiosResponse> {
+  async add(userId: string, socketId: string): Promise<IOutputResult> {
     try {
-      const res = await lotocriptoApi.post(EndpointEnum.PARTICIPANTS, { userId, socketId })
+      const res = await lotocriptoApi.post(
+        EndpointEnum.PARTICIPANTS,
+        { userId, socketId },
+        { withCredentials: true }
+      )
+
+      return res.data
+    } catch (error) {
+      throw new Error(error.response.data.notification.message)
+    }
+  }
+
+  async update(id: string, participant: IParticipant): Promise<IOutputResult> {
+    try {
+      const res = await lotocriptoApi.put(
+        EndpointEnum.PARTICIPANTS,
+        { id, ...participant },
+        { withCredentials: true }
+      )
+
       return res.data
     } catch (error) {
       throw new Error(error.message)
     }
   }
 
-  async update(id: string, participant: IParticipant): Promise<AxiosResponse> {
+  async deleteBySocketId(socketId: string): Promise<IOutputResult> {
     try {
-      const res = await lotocriptoApi.put(EndpointEnum.PARTICIPANTS, { id, ...participant })
-
-      return res.data
-    } catch (error) {
-      throw new Error(error.message)
-    }
-  }
-
-  async deleteBySocketId(socketId: string): Promise<AxiosResponse> {
-    try {
-      const res = await lotocriptoApi.delete(EndpointEnum.PARTICIPANTS, { params: { socketId } })
+      const res = await lotocriptoApi.delete(EndpointEnum.PARTICIPANTS, {
+        params: { socketId },
+        withCredentials: true
+      })
 
       return res.data
     } catch (error) {
