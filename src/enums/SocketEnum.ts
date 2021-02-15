@@ -1,5 +1,5 @@
 export enum SocketEnum {
   CONNECT = 'connect',
-  DISCONNECT = 'disconnect',
-  JOIN_ROUND = 'join_round'
+  JOIN_ROUND = 'join_round',
+  LEAVE_ROUND = 'leave_round'
 }

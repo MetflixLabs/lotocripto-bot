@@ -17,10 +17,10 @@ const sockets = (io: SocketIO.Server): void => {
       await participantService.add(userId, socketId)
     })
 
-    socket.on(SocketEnum.DISCONNECT, async data => {
+    socket.on(SocketEnum.LEAVE_ROUND, async data => {
       const { userId } = data
 
-      console.log('DISCONNECT', data)
+      console.log('LEAVE_ROUND', data)
       await participantService.deleteBySocketId(userId, socketId)
     })
   })
