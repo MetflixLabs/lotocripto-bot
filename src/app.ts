@@ -15,7 +15,7 @@ export const server = async (): Promise<http.Server> => {
     const io = new socketio({
       path,
       cors: {
-        origin: ['https://lotocripto.com.br', 'http://localhost:8000'],
+        origin: ['https://lotocripto.com.br'],
         methods: ['GET', 'POST'],
         credentials: true
       },
