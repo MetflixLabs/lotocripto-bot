@@ -21,7 +21,7 @@ const sockets = (io: SocketIO.Server): void => {
       const { userId } = data
 
       console.log('LEAVE_ROUND', data)
-      await participantService.deleteBySocketId(userId, socketId)
+      await participantService.delete(userId, socketId)
     })
   })
 }

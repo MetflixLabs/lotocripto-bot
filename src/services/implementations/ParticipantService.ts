@@ -29,20 +29,20 @@ export class ParticipantService implements IParticipantService {
 
       return res.data
     } catch (error) {
-      throw new Error(error.message)
+      throw new Error(error.response.data.notification.message)
     }
   }
 
-  async deleteBySocketId(userId: unknown, socketId?: string): Promise<IOutputResult> {
+  async delete(userId: unknown, socketId?: string): Promise<IOutputResult> {
     try {
       const res = await lotocriptoApi.delete(EndpointEnum.PARTICIPANTS, {
-        params: { userId, socketId },
+        data: { userId, socketId },
         withCredentials: true
       })
 
       return res.data
     } catch (error) {
-      throw new Error(error.message)
+      throw new Error(error.response.data.notification.message)
     }
   }
 }
