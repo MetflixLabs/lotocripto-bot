@@ -23,7 +23,7 @@ export const server = async (): Promise<http.Server> => {
     }).listen(server)
 
     // client tests
-    // const socket = ioClient('http://localhost:4000', { path: '/socketio' })
+    // const socket = ioClient('http://localhost:4000', { path: '/ws' })
 
     // socket.emit(SocketEnum.JOIN_ROUND, { userId: 1, socketId: '398721hjas' })
 
