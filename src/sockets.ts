@@ -8,7 +8,7 @@ const participantService = new ParticipantService()
 const sockets = (io: SocketIO.Server): void => {
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
-    console.log('CONNECTED', socketId)
+    console.log('CONNECT', socketId)
 
     socket.on(SocketEnum.JOIN_ROUND, async data => {
       const { userId } = data
@@ -17,8 +17,11 @@ const sockets = (io: SocketIO.Server): void => {
       await participantService.add(userId, socketId)
     })
 
-    socket.on(SocketEnum.DISCONNECT, async () => {
-      await participantService.deleteBySocketId(socketId)
+    socket.on(SocketEnum.DISCONNECT, async data => {
+      const { userId } = data
+
+      console.log('DISCONNECT', data)
+      await participantService.deleteBySocketId(userId, socketId)
     })
   })
 }

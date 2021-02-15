@@ -33,10 +33,10 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async deleteBySocketId(socketId: string): Promise<IOutputResult> {
+  async deleteBySocketId(userId: unknown, socketId?: string): Promise<IOutputResult> {
     try {
       const res = await lotocriptoApi.delete(EndpointEnum.PARTICIPANTS, {
-        params: { socketId },
+        params: { userId, socketId },
         withCredentials: true
       })
 
