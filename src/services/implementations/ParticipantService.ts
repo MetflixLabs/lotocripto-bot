@@ -47,9 +47,13 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async getWinnerByTime(uptime: number): Promise<IOutputResult<IParticipant>> {
+  async getWinnerByTime(uptime: number): Promise<IOutputResult<IUser>> {
     try {
-      const res = await lotocriptoApi.post(LotocriptoEndpointEnum.PARTICIPANTS, { uptime })
+      const res = await lotocriptoApi.post(
+        LotocriptoEndpointEnum.PARTICIPANTS,
+        { uptime },
+        { withCredentials: true }
+      )
 
       return res.data
     } catch (error) {
