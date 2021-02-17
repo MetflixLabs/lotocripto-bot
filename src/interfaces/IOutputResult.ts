@@ -10,8 +10,8 @@ interface INotification {
   message?: string
 }
 
-export interface IOutputResult {
+export interface IOutputResult<T> {
   notification: INotification
   pagination?: IPagination
-  data?: unknown
+  data?: T
 }

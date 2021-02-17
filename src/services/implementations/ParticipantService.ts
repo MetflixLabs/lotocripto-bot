@@ -3,9 +3,10 @@ import { IParticipantService } from '../IParticipantService'
 import { lotocriptoApi } from '../../apis/lotocriptoApi'
 import { LotocriptoEndpointEnum } from '../../enums/LotocriptoEndpointEnum'
 import { IOutputResult } from '../../interfaces/IOutputResult'
+import { IUser } from '../../interfaces/IUser'
 
 export class ParticipantService implements IParticipantService {
-  async add(userId: string, socketId: string): Promise<IOutputResult> {
+  async add(userId: string, socketId: string): Promise<IOutputResult<IParticipant>> {
     try {
       const res = await lotocriptoApi.post(
         LotocriptoEndpointEnum.PARTICIPANTS,
@@ -19,7 +20,7 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async update(id: string, participant: IParticipant): Promise<IOutputResult> {
+  async update(id: string, participant: IParticipant): Promise<IOutputResult<IParticipant>> {
     try {
       const res = await lotocriptoApi.put(
         LotocriptoEndpointEnum.PARTICIPANTS,
@@ -33,7 +34,7 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async delete(userId: unknown, socketId?: string): Promise<IOutputResult> {
+  async delete(userId: unknown, socketId?: string): Promise<IOutputResult<IParticipant>> {
     try {
       const res = await lotocriptoApi.delete(LotocriptoEndpointEnum.PARTICIPANTS, {
         data: { userId, socketId },
@@ -46,7 +47,7 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async getWinnerByTime(uptime: number): Promise<IOutputResult> {
+  async getWinnerByTime(uptime: number): Promise<IOutputResult<IParticipant>> {
     try {
       const res = await lotocriptoApi.post(LotocriptoEndpointEnum.PARTICIPANTS, { uptime })
 
