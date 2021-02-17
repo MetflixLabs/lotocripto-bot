@@ -1,14 +1,14 @@
 import { IParticipant } from '../../interfaces/IParticipant'
 import { IParticipantService } from '../IParticipantService'
 import { lotocriptoApi } from '../../apis/lotocriptoApi'
-import { EndpointEnum } from '../../enums/EndpointEnum'
+import { LotocriptoEndpointEnum } from '../../enums/LotocriptoEndpointEnum'
 import { IOutputResult } from '../../interfaces/IOutputResult'
 
 export class ParticipantService implements IParticipantService {
   async add(userId: string, socketId: string): Promise<IOutputResult> {
     try {
       const res = await lotocriptoApi.post(
-        EndpointEnum.PARTICIPANTS,
+        LotocriptoEndpointEnum.PARTICIPANTS,
         { userId, socketId },
         { withCredentials: true }
       )
@@ -22,7 +22,7 @@ export class ParticipantService implements IParticipantService {
   async update(id: string, participant: IParticipant): Promise<IOutputResult> {
     try {
       const res = await lotocriptoApi.put(
-        EndpointEnum.PARTICIPANTS,
+        LotocriptoEndpointEnum.PARTICIPANTS,
         { id, ...participant },
         { withCredentials: true }
       )
@@ -35,10 +35,20 @@ export class ParticipantService implements IParticipantService {
 
   async delete(userId: unknown, socketId?: string): Promise<IOutputResult> {
     try {
-      const res = await lotocriptoApi.delete(EndpointEnum.PARTICIPANTS, {
+      const res = await lotocriptoApi.delete(LotocriptoEndpointEnum.PARTICIPANTS, {
         data: { userId, socketId },
         withCredentials: true
       })
+
+      return res.data
+    } catch (error) {
+      throw new Error(error.response.data.notification.message)
+    }
+  }
+
+  async getWinnerByTime(uptime: number): Promise<IOutputResult> {
+    try {
+      const res = await lotocriptoApi.post(LotocriptoEndpointEnum.PARTICIPANTS, { uptime })
 
       return res.data
     } catch (error) {
