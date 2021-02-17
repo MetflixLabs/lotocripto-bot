@@ -6,7 +6,7 @@ export const emitBalance = (data: IEmit<IBalance>): void => {
   const { io, props } = data
 
   io.emit(SocketEnum.TOTAL_BALANCE, {
-    total: parseFloat(props.total),
+    total: props.total,
     target: props.target
   })
 }
