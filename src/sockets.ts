@@ -21,7 +21,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
      * Emit balance on connect
      */
     socket.emit(SocketEnum.TOTAL_BALANCE, {
-      total: parseFloat(balance.message.reward),
+      total: parseFloat(balance.message),
       target: ROUND_TARGET
     })
 
@@ -49,7 +49,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       const balance = await coinimpService.getBalance()
 
       socket.emit(SocketEnum.TOTAL_BALANCE, {
-        total: parseFloat(balance.message.reward),
+        total: parseFloat(balance.message),
         target: ROUND_TARGET
       })
     }, 15000)

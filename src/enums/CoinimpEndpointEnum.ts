@@ -1,3 +1,3 @@
 export enum CoinimpEndpointEnum {
-  BALANCE = '/site'
+  BALANCE = '/reward?currency=mintme'
 }

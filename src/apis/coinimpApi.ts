@@ -7,9 +7,6 @@ const coinimpApi = axios.create({
   headers: {
     'X-API-ID': process.env.X_API_ID,
     'X-API-KEY': process.env.X_API_KEY
-  },
-  params: {
-    'site-key': process.env.SITE_KEY
   }
 })
 

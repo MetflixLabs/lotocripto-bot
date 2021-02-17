@@ -8,9 +8,9 @@ export const roundHandler = (roundTarget = 10): Promise<boolean> => {
     interval(async () => {
       const res = await coinimpService.getBalance()
 
-      const balance = parseFloat(res.message.reward)
+      const balance = parseFloat(res.message)
 
-      if (balance > 10) return resolve(true)
+      if (balance > roundTarget) return resolve(true)
     }, 3000)
   })
 }
