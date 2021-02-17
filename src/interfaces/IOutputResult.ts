@@ -13,5 +13,5 @@ interface INotification {
 export interface IOutputResult<T> {
   notification: INotification
   pagination?: IPagination
-  data?: T
+  data?: T | undefined
 }
