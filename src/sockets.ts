@@ -32,8 +32,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       io,
       props: {
         target: ROUND_TARGET,
-        total: parseFloat(message)
-      }
+        total: parseFloat(message),
+      },
     })
 
     if (parseFloat(balance.message) >= ROUND_TARGET) {
@@ -42,7 +42,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
       winnerSubject.notify({
         io,
-        props: winner.data
+        props: winner.data,
       })
     }
   }, CHECK_BALANCE_INTERVAL)
@@ -50,6 +50,16 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
     console.log('CONNECT', socketId)
+
+    const balance = await coinimpService.getBalance()
+
+    /**
+     * Emit balance on connect
+     */
+    socket.emit(SocketEnum.TOTAL_BALANCE, {
+      total: parseFloat(balance.message),
+      target: ROUND_TARGET,
+    })
 
     socket.on(SocketEnum.JOIN_ROUND, async data => {
       const { userId } = data
