@@ -1,10 +1,16 @@
+import interval from 'interval-promise'
 import SocketIO from 'socket.io'
 import { Socket } from 'socket.io'
+import { coinimpApi } from './apis/coinimpApi'
 import { SocketEnum } from './enums/SocketEnum'
+import { CoinIMPService } from './services/implementations/CoinIMPService'
 import { ParticipantService } from './services/implementations/ParticipantService'
 import { roundHandler } from './utils/roundHandler'
 
 const participantService = new ParticipantService()
+const coinimpService = new CoinIMPService()
+
+const ROUND_TARGET = 10
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
@@ -29,7 +35,13 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       await participantService.delete(userId, socketId)
     })
 
-    const isDone = await roundHandler()
+    interval(async () => {
+      const balance = await coinimpService.getBalance()
+
+      socket.emit(SocketEnum.TOTAL_BALANCE, { total: balance.message.reward, target: ROUND_TARGET })
+    }, 15000)
+
+    const isDone = await roundHandler(ROUND_TARGET)
 
     if (isDone) {
       const winner = participantService.getWinnerByTime(600_000) // 10min in milisec
