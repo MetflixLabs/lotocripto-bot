@@ -5,7 +5,6 @@ import { coinimpApi } from './apis/coinimpApi'
 import { SocketEnum } from './enums/SocketEnum'
 import { CoinIMPService } from './services/implementations/CoinIMPService'
 import { ParticipantService } from './services/implementations/ParticipantService'
-import { roundHandler } from './utils/roundHandler'
 
 const participantService = new ParticipantService()
 const coinimpService = new CoinIMPService()
@@ -22,7 +21,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
      */
     socket.emit(SocketEnum.TOTAL_BALANCE, {
       total: parseFloat(balance.message),
-      target: ROUND_TARGET
+      target: ROUND_TARGET,
     })
 
     console.log('CONNECT', socketId)
@@ -50,13 +49,11 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
       socket.emit(SocketEnum.TOTAL_BALANCE, {
         total: parseFloat(balance.message),
-        target: ROUND_TARGET
+        target: ROUND_TARGET,
       })
     }, 15000)
 
-    const isDone = await roundHandler(ROUND_TARGET)
-
-    if (isDone) {
+    if (parseFloat(balance.message) >= ROUND_TARGET) {
       const winner = participantService.getWinnerByTime(600_000) // 10min in milisec
       socket.emit(SocketEnum.ROUND_WINNER, winner)
     }

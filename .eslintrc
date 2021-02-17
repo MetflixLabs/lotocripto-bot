@@ -11,6 +11,6 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "@typescript-eslint/no-extra-semi": false
+    "@typescript-eslint/no-extra-semi": 0
   }
 }
