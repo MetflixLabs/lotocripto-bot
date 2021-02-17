@@ -15,6 +15,16 @@ const ROUND_TARGET = 10
 const sockets = async (io: SocketIO.Server): Promise<void> => {
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
+    const balance = await coinimpService.getBalance()
+
+    /**
+     * Emit balance on connect
+     */
+    socket.emit(SocketEnum.TOTAL_BALANCE, {
+      total: parseFloat(balance.message.reward),
+      target: ROUND_TARGET
+    })
+
     console.log('CONNECT', socketId)
 
     socket.on(SocketEnum.JOIN_ROUND, async data => {
@@ -38,7 +48,10 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     interval(async () => {
       const balance = await coinimpService.getBalance()
 
-      socket.emit(SocketEnum.TOTAL_BALANCE, { total: balance.message.reward, target: ROUND_TARGET })
+      socket.emit(SocketEnum.TOTAL_BALANCE, {
+        total: parseFloat(balance.message.reward),
+        target: ROUND_TARGET
+      })
     }, 15000)
 
     const isDone = await roundHandler(ROUND_TARGET)
