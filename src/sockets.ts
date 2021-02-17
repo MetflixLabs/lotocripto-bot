@@ -5,12 +5,12 @@ import { SocketEnum } from './enums/SocketEnum'
 import { emitBalance } from './events/emitBalance'
 import { emitWinner } from './events/emitWinner'
 import { IBalance } from './interfaces/IBalance'
-import { IParticipant } from './interfaces/IParticipant'
 import { CoinIMPService } from './services/implementations/CoinIMPService'
 import { ParticipantService } from './services/implementations/ParticipantService'
 import { Observable } from './observables/Observable'
+import { IUser } from './interfaces/IUser'
 
-const winnerSubject = Observable<IParticipant>()
+const winnerSubject = Observable<IUser>()
 const balanceSubject = Observable<IBalance>()
 
 winnerSubject.subscribe(emitWinner)
@@ -32,8 +32,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       io,
       props: {
         target: ROUND_TARGET,
-        total: parseFloat(message),
-      },
+        total: parseFloat(message)
+      }
     })
 
     if (parseFloat(balance.message) >= ROUND_TARGET) {
@@ -42,7 +42,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
       winnerSubject.notify({
         io,
-        props: winner.data,
+        props: winner.data
       })
     }
   }, CHECK_BALANCE_INTERVAL)
@@ -58,7 +58,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
      */
     socket.emit(SocketEnum.TOTAL_BALANCE, {
       total: parseFloat(balance.message),
-      target: ROUND_TARGET,
+      target: ROUND_TARGET
     })
 
     socket.on(SocketEnum.JOIN_ROUND, async data => {
