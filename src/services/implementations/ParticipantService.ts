@@ -56,7 +56,7 @@ export class ParticipantService implements IParticipantService {
         withCredentials: true,
       })
 
-      return res?.data?.data
+      return res?.data
     } catch (error) {
       console.log(error)
     }

@@ -37,7 +37,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     })
 
     if (parseFloat(balance.message) >= ROUND_TARGET) {
-      const winner = await participantService.getWinnerByTime(0)
+      const winner = await participantService.getWinnerByTime(ROUND_DURATION)
 
       try {
         winnerSubject.notify({
@@ -46,6 +46,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
         })
       } catch (error) {
         console.log(`[Nenhum ganhador válido]: ${error}`)
+        io.emit(SocketEnum.ROUND_WINNER, {})
       }
     }
   }, CHECK_BALANCE_INTERVAL)
