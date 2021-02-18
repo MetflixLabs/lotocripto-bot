@@ -38,7 +38,7 @@ export class ParticipantService implements IParticipantService {
     try {
       const res = await lotocriptoApi.delete(LotocriptoEndpointEnum.PARTICIPANTS, {
         data: { userId, socketId },
-        withCredentials: true
+        withCredentials: true,
       })
 
       return res.data
@@ -50,8 +50,8 @@ export class ParticipantService implements IParticipantService {
   async getWinnerByTime(uptime: number): Promise<IOutputResult<IUser>> {
     try {
       const res = await lotocriptoApi.get(LotocriptoEndpointEnum.PARTICIPANTS, {
-        data: uptime,
-        withCredentials: true
+        data: { uptime },
+        withCredentials: true,
       })
 
       return res.data
