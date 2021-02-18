@@ -51,60 +51,41 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     }
   }, CHECK_BALANCE_INTERVAL)
 
-  io.use((socket, next) => {
-    const { cookie } = socket.request.headers
-    // make sure the handshake data looks good as before
-    // if error do this:
-    // next(new Error("not authorized"));
-    // else just call next
+  io.on(SocketEnum.CONNECT, async (socket: Socket) => {
+    const socketId = socket.id
+    const clientCookies = socket.request.headers.cookie
 
-    console.log('cookie', cookie)
+    console.log('clientCookies', clientCookies)
+    console.log('CONNECT', socketId)
 
-    next()
+    const balance = await coinimpService.getBalance()
+
+    /**
+     * Emit balance on connect
+     */
+    socket.emit(SocketEnum.TOTAL_BALANCE, {
+      total: parseFloat(balance.message),
+      target: ROUND_TARGET,
+    })
+
+    socket.on(SocketEnum.JOIN_ROUND, async data => {
+      const { userId } = data
+
+      console.log('JOIN_ROUND', data)
+      const res = await participantService.add(userId, socketId)
+
+      if (res.notification.success) socket.emit(SocketEnum.JOIN_SUCCESS, 'Você entrou na rodada.')
+      else if (!res.notification.success)
+        socket.emit(SocketEnum.JOIN_FAILED, res.notification.message)
+    })
+
+    socket.on(SocketEnum.LEAVE_ROUND, async data => {
+      const { userId } = data
+
+      console.log('LEAVE_ROUND', data)
+      await participantService.delete(userId, socketId)
+    })
   })
-
-  io.on(
-    SocketEnum.CONNECT,
-    async (
-      socket: Socket,
-      cookie: {
-        name: 'token'
-        httpOnly: false
-        path: '/'
-      }
-    ) => {
-      const socketId = socket.id
-      console.log('CONNECT', socketId)
-
-      const balance = await coinimpService.getBalance()
-
-      /**
-       * Emit balance on connect
-       */
-      socket.emit(SocketEnum.TOTAL_BALANCE, {
-        total: parseFloat(balance.message),
-        target: ROUND_TARGET,
-      })
-
-      socket.on(SocketEnum.JOIN_ROUND, async data => {
-        const { userId } = data
-
-        console.log('JOIN_ROUND', data)
-        const res = await participantService.add(userId, socketId)
-
-        if (res.notification.success) socket.emit(SocketEnum.JOIN_SUCCESS, 'Você entrou na rodada.')
-        else if (!res.notification.success)
-          socket.emit(SocketEnum.JOIN_FAILED, res.notification.message)
-      })
-
-      socket.on(SocketEnum.LEAVE_ROUND, async data => {
-        const { userId } = data
-
-        console.log('LEAVE_ROUND', data)
-        await participantService.delete(userId, socketId)
-      })
-    }
-  )
 }
 
 export { sockets }
