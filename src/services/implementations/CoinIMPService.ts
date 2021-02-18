@@ -8,7 +8,7 @@ export class CoinIMPService implements ICoinIMPService {
     try {
       const axiosRes = await coinimpApi.get(CoinimpEndpointEnum.BALANCE)
 
-      return axiosRes.data
+      return axiosRes?.data
     } catch (error) {
       throw new Error(error.response.data)
     }
