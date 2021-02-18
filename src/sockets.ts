@@ -10,7 +10,7 @@ import { ParticipantService } from './services/implementations/ParticipantServic
 import { Observable } from './observables/Observable'
 import { IUser } from './interfaces/IUser'
 
-const winnerSubject = Observable<IUser>()
+const winnerSubject = Observable<IUser | undefined>()
 const balanceSubject = Observable<IBalance>()
 
 winnerSubject.subscribe(emitWinner)
@@ -32,18 +32,21 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       io,
       props: {
         target: ROUND_TARGET,
-        total: parseFloat(message)
-      }
+        total: parseFloat(message),
+      },
     })
 
     if (parseFloat(balance.message) >= ROUND_TARGET) {
-      const winner = await participantService.getWinnerByTime(ROUND_DURATION)
-      if (!winner.data) throw new Error('Nenhum ganhador válido.')
+      const winner = await participantService.getWinnerByTime(0)
 
-      winnerSubject.notify({
-        io,
-        props: winner.data
-      })
+      try {
+        winnerSubject.notify({
+          io,
+          props: winner?.data,
+        })
+      } catch (error) {
+        console.log(`[Nenhum ganhador válido]: ${error}`)
+      }
     }
   }, CHECK_BALANCE_INTERVAL)
 
@@ -58,7 +61,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
      */
     socket.emit(SocketEnum.TOTAL_BALANCE, {
       total: parseFloat(balance.message),
-      target: ROUND_TARGET
+      target: ROUND_TARGET,
     })
 
     socket.on(SocketEnum.JOIN_ROUND, async data => {

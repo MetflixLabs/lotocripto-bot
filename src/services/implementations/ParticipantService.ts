@@ -4,6 +4,7 @@ import { lotocriptoApi } from '../../apis/lotocriptoApi'
 import { LotocriptoEndpointEnum } from '../../enums/LotocriptoEndpointEnum'
 import { IOutputResult } from '../../interfaces/IOutputResult'
 import { IUser } from '../../interfaces/IUser'
+import { exception } from 'console'
 
 export class ParticipantService implements IParticipantService {
   async add(userId: string, socketId: string): Promise<IOutputResult<IParticipant>> {
@@ -47,16 +48,16 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async getWinnerByTime(uptime: number): Promise<IOutputResult<IUser>> {
+  async getWinnerByTime(uptime: number): Promise<IOutputResult<IUser> | undefined> {
     try {
       const res = await lotocriptoApi.get(LotocriptoEndpointEnum.PARTICIPANTS, {
         data: { uptime },
         withCredentials: true,
       })
 
-      return res.data
+      return res?.data?.data
     } catch (error) {
-      throw new Error(error.response.data.notification.message)
+      console.log(error)
     }
   }
 }
