@@ -1,5 +1,5 @@
 {
-  "name": "lotocripto-api",
+  "name": "lotocripto-bot",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -16,6 +16,7 @@
     "interval-promise": "^1.4.0",
     "moment": "^2.29.1",
     "prettier": "^2.1.2",
+    "puppeteer": "^7.1.0",
     "socket.io": "^3.1.1"
   },
   "devDependencies": {
