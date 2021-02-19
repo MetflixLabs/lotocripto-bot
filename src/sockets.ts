@@ -21,10 +21,10 @@ const coinimpService = new CoinIMPService()
 
 const ROUND_TARGET = 1
 const ROUND_DURATION = 600_000 // 10min in milisec
-const CHECK_BALANCE_INTERVAL = 15000
+const CHECK_BALANCE_INTERVAL = 60000
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
-  // check coinimp balance every 15s
+  // check coinimp balance every 60s
   interval(async () => {
     const balance = await coinimpService.getBalance()
     const { message } = balance
