@@ -37,6 +37,7 @@ export class CoinIMPService implements ICoinIMPService {
       ]
 
       const browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
         // headless: false, // launch a browser
         // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' // - to execute chrome instead of chromium
       })
