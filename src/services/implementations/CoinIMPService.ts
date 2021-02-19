@@ -116,7 +116,7 @@ export class CoinIMPService implements ICoinIMPService {
         el => el.textContent,
         insufficientFundsError
       )
-      if (insufficientFundsErrorText) {
+      if (insufficientFundsErrorText.match(/quantity field/gi)) {
         console.log(`[Payout] WARNING: Insufficient funds to execute payout`)
 
         await browser.close()
