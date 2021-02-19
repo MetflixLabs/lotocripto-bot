@@ -91,16 +91,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     const socketId = socket.id
     console.log('CONNECT', socketId)
 
-    const balance = await coinimpService.getBalance()
-
-    /**
-     * Emit balance on connect
-     */
-    socket.emit(SocketEnum.TOTAL_BALANCE, {
-      total: parseFloat(balance.message),
-      target: ROUND_TARGET,
-    })
-
     socket.on(SocketEnum.JOIN_ROUND, async data => {
       const { userId } = data
 
