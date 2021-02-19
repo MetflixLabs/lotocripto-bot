@@ -110,7 +110,7 @@ export class CoinIMPService implements ICoinIMPService {
       const amountInput = await page.$('input[name="quantity"]')
       if (amountInput) {
         await amountInput.click({ clickCount: 3 })
-        await amountInput.type(amount.toString().replace(/\./gi, ','))
+        await amountInput.type(amount)
       }
 
       const insufficientFundsError = await page.$('form .text-danger')
