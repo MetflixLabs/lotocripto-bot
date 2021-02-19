@@ -96,8 +96,6 @@ export class CoinIMPService implements ICoinIMPService {
       console.log(`[Payout] Wallet Updated`)
       console.log(`[Payout] Start payment`)
 
-      await page.screenshot({ path: 'paymentStarted.png' })
-
       /**
        * Init payment
        */
@@ -135,8 +133,6 @@ export class CoinIMPService implements ICoinIMPService {
       }
 
       console.log('[Payout] Clicked on confirm payment')
-
-      await page.screenshot({ path: 'confirmPaymentButton.png' })
 
       await page.waitForNavigation()
 
