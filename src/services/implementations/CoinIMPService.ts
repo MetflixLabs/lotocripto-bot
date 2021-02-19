@@ -111,22 +111,6 @@ export class CoinIMPService implements ICoinIMPService {
         await amountInput.type(amount.toString().replace(/\./gi, ','))
       }
 
-      const insufficientFundsError = await page.$('form .text-danger')
-      const insufficientFundsErrorText = await page.evaluate(
-        el => el.textContent,
-        insufficientFundsError
-      )
-      if (insufficientFundsErrorText.match(/quantity field/gi)) {
-        console.log(`[Payout] WARNING: Insufficient funds to execute payout`)
-
-        await browser.close()
-
-        return {
-          message: 'Fundos insuficentes para efetuar o pagamento',
-          status: 'error',
-        }
-      }
-
       const confirmPaymentButton = await page.$('#confirm-pay-btn')
       if (confirmPaymentButton) {
         await confirmPaymentButton.click()

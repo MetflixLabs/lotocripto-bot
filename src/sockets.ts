@@ -32,6 +32,14 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     const balance = await coinimpService.getBalance()
     const { message } = balance
     CURRENT_BALANCE = parseFloat(message)
+
+    /**
+     * Emit blue notification if balance matches on start
+     */
+    if (CURRENT_BALANCE >= ROUND_TARGET) {
+      console.log(`[Sufficient Balance]: Will pick a winner in the first interval iteration`)
+      io.emit(SocketEnum.ROUND_WINNER, {})
+    }
   } catch (error) {
     console.log(`Failed to fetch initial balance: ${error}`)
   }
