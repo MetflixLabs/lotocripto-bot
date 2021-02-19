@@ -79,7 +79,7 @@ export class CoinIMPService implements ICoinIMPService {
         await saveWalletButton.click()
       }
 
-      await page.waitForNavigation()
+      await page.waitForNavigation({ timeout: 0, waitUntil: 'networkidle0' })
 
       const walletAlertSuccess = await page.$('.alert-success')
       const walletAlertText = await page.evaluate(el => el.textContent, walletAlertSuccess)
@@ -118,7 +118,7 @@ export class CoinIMPService implements ICoinIMPService {
         await confirmPaymentButton.click()
       }
 
-      await page.waitForNavigation()
+      await page.waitForNavigation({ timeout: 0, waitUntil: 'networkidle0' })
 
       /**
        * Confirm the payment
