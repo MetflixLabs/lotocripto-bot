@@ -94,6 +94,21 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
           console.log('[Payment Receipt]: ', receipt)
 
+          /**
+           * Refetch balance
+           */
+          const balance = await coinimpService.getBalance()
+          const { message } = balance
+          CURRENT_BALANCE = parseFloat(message)
+
+          balanceSubject.notify({
+            io,
+            props: {
+              target: ROUND_TARGET,
+              total: CURRENT_BALANCE,
+            },
+          })
+
           winnerSubject.notify({
             io,
             props: winner?.data,
