@@ -19,7 +19,7 @@ balanceSubject.subscribe(emitBalance)
 const participantService = new ParticipantService()
 const coinimpService = new CoinIMPService()
 
-const ROUND_TARGET = 2
+const ROUND_TARGET = 1
 const ROUND_DURATION = 600_000 // 10min in milisec
 const CHECK_BALANCE_INTERVAL = 15000
 
