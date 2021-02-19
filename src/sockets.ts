@@ -39,70 +39,74 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
   /**
    * check coinimp balance every 60s
    */
-  interval(async () => {
-    const balance = await coinimpService.getBalance()
-    const { message } = balance
+  interval(
+    async () => {
+      const balance = await coinimpService.getBalance()
+      const { message } = balance
 
-    CURRENT_BALANCE = parseFloat(message)
+      CURRENT_BALANCE = parseFloat(message)
 
-    balanceSubject.notify({
-      io,
-      props: {
-        target: ROUND_TARGET,
-        total: CURRENT_BALANCE,
-      },
-    })
+      balanceSubject.notify({
+        io,
+        props: {
+          target: ROUND_TARGET,
+          total: CURRENT_BALANCE,
+        },
+      })
 
-    if (CURRENT_BALANCE >= ROUND_TARGET) {
-      const winner = await participantService.getWinnerByTime(ROUND_DURATION)
-      // if (true) {
-      //   const winner = await participantService.getWinnerByTime(0)
+      if (CURRENT_BALANCE >= ROUND_TARGET) {
+        const winner = await participantService.getWinnerByTime(ROUND_DURATION)
+        // if (true) {
+        //   const winner = await participantService.getWinnerByTime(0)
 
-      try {
-        const walletAddress = winner?.data?.walletAddress
-        const totalToPay = ((90 / 100) * ROUND_TARGET).toFixed(8)
-        const totalTax = ((10 / 100) * ROUND_TARGET).toFixed(8)
+        try {
+          const walletAddress = winner?.data?.walletAddress
+          const totalToPay = ((90 / 100) * ROUND_TARGET).toFixed(8)
+          const totalTax = ((10 / 100) * ROUND_TARGET).toFixed(8)
 
-        if (!walletAddress) {
-          console.log(`[Nenhum ganhador válido]: nenhum endereço de wallet retornado`)
-          io.emit(SocketEnum.ROUND_WINNER, {})
+          if (!walletAddress) {
+            console.log(`[Nenhum ganhador válido]: nenhum endereço de wallet retornado`)
+            io.emit(SocketEnum.ROUND_WINNER, {})
 
-          return
-        }
+            return
+          }
 
-        /**
-         * Pay the winner
-         */
-        const receipt = await coinimpService.payout(walletAddress, totalToPay)
-
-        if (receipt.status === 'error') {
           /**
-           * Will grab another winner in 15s
+           * Pay the winner
            */
+          const receipt = await coinimpService.payout(walletAddress, totalToPay)
+
+          if (receipt.status === 'error') {
+            /**
+             * Will grab another winner in 15s
+             */
+            io.emit(SocketEnum.ROUND_WINNER, {})
+            return
+          }
+
+          /**
+           * Success payout, now grab the administration tax
+           */
+
+          if (process.env.MINTME_WALLET) {
+            await coinimpService.payout(process.env.MINTME_WALLET, totalTax)
+          }
+
+          console.log('[Payment Receipt]: ', receipt)
+
+          winnerSubject.notify({
+            io,
+            props: winner?.data,
+          })
+        } catch (error) {
+          console.log(`[Nenhum ganhador válido]: ${error}`)
           io.emit(SocketEnum.ROUND_WINNER, {})
-          return
         }
-
-        /**
-         * Success payout, now grab the administration tax
-         */
-
-        if (process.env.MINTME_WALLET) {
-          await coinimpService.payout(process.env.MINTME_WALLET, totalTax)
-        }
-
-        console.log('[Payment Receipt]: ', receipt)
-
-        winnerSubject.notify({
-          io,
-          props: winner?.data,
-        })
-      } catch (error) {
-        console.log(`[Nenhum ganhador válido]: ${error}`)
-        io.emit(SocketEnum.ROUND_WINNER, {})
       }
-    }
-  }, CHECK_BALANCE_INTERVAL)
+    },
+    CHECK_BALANCE_INTERVAL,
+    { stopOnError: false }
+  )
 
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
