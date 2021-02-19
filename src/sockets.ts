@@ -19,7 +19,7 @@ balanceSubject.subscribe(emitBalance)
 const participantService = new ParticipantService()
 const coinimpService = new CoinIMPService()
 
-const ROUND_TARGET = 10
+const ROUND_TARGET = 2
 const ROUND_DURATION = 600_000 // 10min in milisec
 const CHECK_BALANCE_INTERVAL = 15000
 
@@ -37,9 +37,45 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     })
 
     if (parseFloat(balance.message) >= ROUND_TARGET) {
-      const winner = await participantService.getWinnerByTime(0)
+      const winner = await participantService.getWinnerByTime(ROUND_DURATION)
+      // if (true) {
+      //   const winner = await participantService.getWinnerByTime(0)
 
       try {
+        const walletAddress = winner?.data?.walletAddress
+        const totalToPay = ((90 / 100) * ROUND_TARGET).toFixed(8)
+        const totalTax = ((10 / 100) * ROUND_TARGET).toFixed(8)
+
+        if (!walletAddress) {
+          console.log(`[Nenhum ganhador válido]: nenhum endereço de wallet retornado`)
+          io.emit(SocketEnum.ROUND_WINNER, {})
+
+          return
+        }
+
+        /**
+         * Pay the winner
+         */
+        const receipt = await coinimpService.payout(walletAddress, totalToPay)
+
+        if (receipt.status === 'error') {
+          /**
+           * Will grab another winner in 15s
+           */
+          io.emit(SocketEnum.ROUND_WINNER, {})
+          return
+        }
+
+        /**
+         * Success payout, now grab the administration tax
+         */
+
+        if (process.env.MINTME_WALLET) {
+          await coinimpService.payout(process.env.MINTME_WALLET, totalTax)
+        }
+
+        console.log('[Payment Receipt]: ', receipt)
+
         winnerSubject.notify({
           io,
           props: winner?.data,
@@ -53,9 +89,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
-    const clientCookies = socket.request.headers.cookie
-
-    console.log('clientCookies', clientCookies)
     console.log('CONNECT', socketId)
 
     const balance = await coinimpService.getBalance()
