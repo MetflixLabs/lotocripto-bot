@@ -45,8 +45,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
     CURRENT_BALANCE = parseFloat(message)
 
-    console.log('CURRENT_BALANCE:::', CURRENT_BALANCE)
-
     balanceSubject.notify({
       io,
       props: {
