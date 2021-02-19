@@ -19,24 +19,43 @@ balanceSubject.subscribe(emitBalance)
 const participantService = new ParticipantService()
 const coinimpService = new CoinIMPService()
 
+let CURRENT_BALANCE = 0
 const ROUND_TARGET = 1
 const ROUND_DURATION = 600_000 // 10min in milisec
 const CHECK_BALANCE_INTERVAL = 60000
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
-  // check coinimp balance every 60s
+  /**
+   * Initial balance fetch
+   */
+  try {
+    const balance = await coinimpService.getBalance()
+    const { message } = balance
+    CURRENT_BALANCE = parseFloat(message)
+  } catch (error) {
+    console.log(`Failed to fetch initial balance: ${error}`)
+  }
+
+  /**
+   * check coinimp balance every 60s
+   */
   interval(async () => {
     const balance = await coinimpService.getBalance()
     const { message } = balance
+
+    CURRENT_BALANCE = parseFloat(message)
+
+    console.log('CURRENT_BALANCE:::', CURRENT_BALANCE)
+
     balanceSubject.notify({
       io,
       props: {
         target: ROUND_TARGET,
-        total: parseFloat(message),
+        total: CURRENT_BALANCE,
       },
     })
 
-    if (parseFloat(balance.message) >= ROUND_TARGET) {
+    if (CURRENT_BALANCE >= ROUND_TARGET) {
       const winner = await participantService.getWinnerByTime(ROUND_DURATION)
       // if (true) {
       //   const winner = await participantService.getWinnerByTime(0)
@@ -90,6 +109,14 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
     console.log('CONNECT', socketId)
+
+    /**
+     * Emit balance on connect
+     */
+    socket.emit(SocketEnum.TOTAL_BALANCE, {
+      total: CURRENT_BALANCE,
+      target: ROUND_TARGET,
+    })
 
     socket.on(SocketEnum.JOIN_ROUND, async data => {
       const { userId } = data
