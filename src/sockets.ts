@@ -160,6 +160,12 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       console.log('LEAVE_ROUND', data)
       await participantService.delete(userId, socketId)
     })
+
+    socket.on('disconnect', async () => {
+      console.log('DISCONNECTED', socketId)
+
+      await participantService.delete(null, socketId)
+    })
   })
 }
 
