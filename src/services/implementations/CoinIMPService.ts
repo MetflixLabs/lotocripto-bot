@@ -38,8 +38,6 @@ export class CoinIMPService implements ICoinIMPService {
 
       const browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        timeout: 0,
-        ignoreHTTPSErrors: true,
         // headless: false, // launch a browser
         // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' // - to execute chrome instead of chromium
       })
@@ -79,7 +77,7 @@ export class CoinIMPService implements ICoinIMPService {
         await saveWalletButton.click()
       }
 
-      await page.waitForNavigation({ timeout: 0, waitUntil: 'networkidle0' })
+      await page.waitForNavigation()
 
       const walletAlertSuccess = await page.$('.alert-success')
       const walletAlertText = await page.evaluate(el => el.textContent, walletAlertSuccess)
@@ -124,7 +122,7 @@ export class CoinIMPService implements ICoinIMPService {
 
       await page.screenshot({ path: 'confirmPaymentButton.png' })
 
-      await page.waitForNavigation({ timeout: 0, waitUntil: 'networkidle0' })
+      await page.waitForNavigation()
 
       /**
        * Confirm the payment
