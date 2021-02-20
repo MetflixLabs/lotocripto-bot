@@ -5,5 +5,6 @@ export enum SocketEnum {
   JOIN_FAILED = 'join_failed',
   LEAVE_ROUND = 'leave_round',
   ROUND_WINNER = 'round_winner',
-  TOTAL_BALANCE = 'total_balance'
+  TOTAL_BALANCE = 'total_balance',
+  ONLINE_USERS = 'online_users',
 }

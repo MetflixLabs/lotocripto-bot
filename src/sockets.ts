@@ -23,6 +23,8 @@ let CURRENT_BALANCE = 0
 const ROUND_TARGET = 1
 const ROUND_DURATION = 600_000 // 10min in milisec
 const CHECK_BALANCE_INTERVAL = 30000
+let ONLINE_USERS = 0
+let MINING_USERS = 0
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
   /**
@@ -45,7 +47,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
   }
 
   /**
-   * check coinimp balance every 60s
+   * check coinimp balance every 30s
    */
   interval(
     async () => {
@@ -133,7 +135,13 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
+    ONLINE_USERS = io.of('/').sockets.size
     console.log('CONNECT', socketId)
+
+    io.emit(SocketEnum.ONLINE_USERS, {
+      onlineUsers: ONLINE_USERS,
+      miningUsers: MINING_USERS,
+    })
 
     /**
      * Emit balance on connect
@@ -149,13 +157,33 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       console.log('JOIN_ROUND', data)
       const res = await participantService.add(userId, socketId)
 
-      if (res.notification.success) socket.emit(SocketEnum.JOIN_SUCCESS, 'Você entrou na rodada.')
-      else if (!res.notification.success)
+      if (res.notification.success) {
+        MINING_USERS++
+        ONLINE_USERS = io.of('/').sockets.size
+
+        socket.emit(SocketEnum.JOIN_SUCCESS, 'Você entrou na rodada.')
+
+        io.emit(SocketEnum.ONLINE_USERS, {
+          onlineUsers: ONLINE_USERS,
+          miningUsers: MINING_USERS,
+        })
+      } else if (!res.notification.success)
         socket.emit(SocketEnum.JOIN_FAILED, res.notification.message)
     })
 
     socket.on(SocketEnum.LEAVE_ROUND, async data => {
       const { userId } = data
+
+      if (MINING_USERS > 0) {
+        MINING_USERS--
+      }
+
+      ONLINE_USERS = io.of('/').sockets.size
+
+      io.emit(SocketEnum.ONLINE_USERS, {
+        onlineUsers: ONLINE_USERS,
+        miningUsers: MINING_USERS,
+      })
 
       console.log('LEAVE_ROUND', data)
       await participantService.delete(userId, socketId)
@@ -163,6 +191,16 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
     socket.on('disconnect', async () => {
       console.log('DISCONNECTED', socketId)
+
+      ONLINE_USERS = io.of('/').sockets.size
+      if (MINING_USERS > 0) {
+        MINING_USERS--
+      }
+
+      io.emit(SocketEnum.ONLINE_USERS, {
+        onlineUsers: ONLINE_USERS,
+        miningUsers: MINING_USERS,
+      })
 
       await participantService.delete(null, socketId)
     })
