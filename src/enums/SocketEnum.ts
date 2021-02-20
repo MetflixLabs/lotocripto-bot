@@ -7,4 +7,5 @@ export enum SocketEnum {
   ROUND_WINNER = 'round_winner',
   TOTAL_BALANCE = 'total_balance',
   ONLINE_USERS = 'online_users',
+  LAST_WINNERS = 'last_winners',
 }

@@ -1,4 +1,3 @@
-import { IEmit } from '../interfaces/IEmit'
 import { IObservable } from '../interfaces/IObservable'
 
 export function Observable<T>(): IObservable<T> {
@@ -12,7 +11,7 @@ export function Observable<T>(): IObservable<T> {
     state = state.filter(func => func !== f)
   }
 
-  function notify(props: IEmit<T>) {
+  function notify(props: T) {
     state.forEach(f => f(props))
   }
 
@@ -20,6 +19,6 @@ export function Observable<T>(): IObservable<T> {
     state,
     subscribe,
     unsubscribe,
-    notify
+    notify,
   }
 }

@@ -62,7 +62,7 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async getAllParticipants(): Promise<IOutputResult<IUser[]> | null> {
+  async getParticipantLenght(): Promise<IOutputResult<number> | null> {
     try {
       const res = await lotocriptoApi.get(LotocriptoEndpointEnum.PARTICIPANTS, {
         withCredentials: true,

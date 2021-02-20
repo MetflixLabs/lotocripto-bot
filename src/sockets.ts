@@ -9,22 +9,32 @@ import { CoinIMPService } from './services/implementations/CoinIMPService'
 import { ParticipantService } from './services/implementations/ParticipantService'
 import { Observable } from './observables/Observable'
 import { IUser } from './interfaces/IUser'
+import { IEmit } from './interfaces/IEmit'
+import { IOnlineUsers } from './interfaces/IOnlineUsers'
+import { emitOnlineUsers } from './events/emitOnlineUsers'
+import { WinnerService } from './services/implementations/WinnerService'
+import { userInfo } from 'os'
 
-const winnerSubject = Observable<IUser | undefined>()
-const balanceSubject = Observable<IBalance>()
+const winnerSubject = Observable<IEmit<IUser | undefined>>()
+const balanceSubject = Observable<IEmit<IBalance | undefined>>()
+const onlineUsersSubject = Observable<IEmit<IOnlineUsers>>()
 
 winnerSubject.subscribe(emitWinner)
 balanceSubject.subscribe(emitBalance)
+onlineUsersSubject.subscribe(emitOnlineUsers)
 
 const participantService = new ParticipantService()
 const coinimpService = new CoinIMPService()
+const winnerService = new WinnerService()
 
-let CURRENT_BALANCE = 0
-const ROUND_TARGET = 1
-const ROUND_DURATION = 600_000 // 10min in milisec
-const CHECK_BALANCE_INTERVAL = 30000
-let ONLINE_USERS = 0
-let MINING_USERS = 0
+const state = {
+  ONLINE_USERS: 0,
+  MINING_USERS: 0,
+  CURRENT_BALANCE: 0,
+  ROUND_TARGET: 1,
+  ROUND_DURATION: 600_000, // 10min in milisec
+  CHECK_BALANCE_INTERVAL: 30000,
+}
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
   /**
@@ -33,14 +43,17 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
   try {
     const balance = await coinimpService.getBalance()
     const { message } = balance
-    CURRENT_BALANCE = parseFloat(message)
+    state.CURRENT_BALANCE = parseFloat(message)
 
     /**
      * Emit blue notification if balance matches on start
      */
-    if (CURRENT_BALANCE >= ROUND_TARGET) {
+    if (state.CURRENT_BALANCE >= state.ROUND_TARGET) {
       console.log(`[Sufficient Balance]: Will pick a winner in the first interval iteration`)
-      io.emit(SocketEnum.ROUND_WINNER, {})
+      balanceSubject.notify({
+        io,
+        props: undefined,
+      })
     }
   } catch (error) {
     console.log(`Failed to fetch initial balance: ${error}`)
@@ -54,29 +67,32 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       const balance = await coinimpService.getBalance()
       const { message } = balance
 
-      CURRENT_BALANCE = parseFloat(message)
+      state.CURRENT_BALANCE = parseFloat(message)
 
       balanceSubject.notify({
         io,
         props: {
-          target: ROUND_TARGET,
-          total: CURRENT_BALANCE,
+          target: state.ROUND_TARGET,
+          total: state.CURRENT_BALANCE,
         },
       })
 
-      if (CURRENT_BALANCE >= ROUND_TARGET) {
-        const winner = await participantService.getParticipantByTime(ROUND_DURATION)
+      if (state.CURRENT_BALANCE >= state.ROUND_TARGET) {
+        const winner = await participantService.getParticipantByTime(state.ROUND_DURATION)
         // if (true) {
         //   const winner = await participantService.getWinnerByTime(0)
 
         try {
           const walletAddress = winner?.data?.walletAddress
-          const totalToPay = ((90 / 100) * ROUND_TARGET).toFixed(8)
-          const totalTax = ((10 / 100) * ROUND_TARGET).toFixed(8)
+          const totalToPay = ((90 / 100) * state.ROUND_TARGET).toFixed(8)
+          const totalTax = ((10 / 100) * state.ROUND_TARGET).toFixed(8)
 
           if (!walletAddress) {
             console.log(`[Nenhum ganhador válido]: nenhum endereço de wallet retornado`)
-            io.emit(SocketEnum.ROUND_WINNER, {})
+            balanceSubject.notify({
+              io,
+              props: undefined,
+            })
 
             return
           }
@@ -90,18 +106,18 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
             /**
              * Will grab another winner in 15s
              */
-            io.emit(SocketEnum.ROUND_WINNER, {})
-            return
+            return balanceSubject.notify({
+              io,
+              props: undefined,
+            })
           }
 
           /**
            * Success payout, now grab the administration tax
            */
 
-          if (process.env.MINTME_WALLET) {
+          if (process.env.MINTME_WALLET)
             await coinimpService.payout(process.env.MINTME_WALLET, totalTax)
-          }
-
           console.log('[Payment Receipt]: ', receipt)
 
           /**
@@ -109,13 +125,13 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
            */
           const balance = await coinimpService.getBalance()
           const { message } = balance
-          CURRENT_BALANCE = parseFloat(message)
+          state.CURRENT_BALANCE = parseFloat(message)
 
           balanceSubject.notify({
             io,
             props: {
-              target: ROUND_TARGET,
-              total: CURRENT_BALANCE,
+              target: state.ROUND_TARGET,
+              total: state.CURRENT_BALANCE,
             },
           })
 
@@ -123,40 +139,59 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
             io,
             props: winner?.data,
           })
+
+          // update last winners collection and send to front
+          if (receipt.paidAmount && receipt.blockchainReceipt) {
+            await winnerService.add({
+              amount: receipt.paidAmount ?? 0,
+              transactionId: receipt.blockchainReceipt,
+              userId: winner?.data?.id,
+            })
+
+            const lastWinners = await winnerService.list()
+
+            io.emit(SocketEnum.LAST_WINNERS, { lastWinners })
+          }
         } catch (error) {
           console.log(`[Nenhum ganhador válido]: ${error}`)
-          io.emit(SocketEnum.ROUND_WINNER, {})
+          balanceSubject.notify({
+            io,
+            props: undefined,
+          })
         }
       }
     },
-    CHECK_BALANCE_INTERVAL,
+    state.CHECK_BALANCE_INTERVAL,
     { stopOnError: false }
   )
 
-  const allParticipants = await participantService.getAllParticipants()
+  const allParticipants = await participantService.getParticipantLenght()
 
-  if (allParticipants?.data) {
-    MINING_USERS = allParticipants.data.length
-  }
+  if (allParticipants?.data) state.MINING_USERS = allParticipants.data
 
+  // CONNECT
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
-    ONLINE_USERS = io.of('/').sockets.size
+    state.ONLINE_USERS = io.of('/').sockets.size
     console.log('CONNECT', socketId)
 
-    io.emit(SocketEnum.ONLINE_USERS, {
-      onlineUsers: ONLINE_USERS,
-      miningUsers: MINING_USERS,
+    onlineUsersSubject.notify({
+      io,
+      props: {
+        onlineUsers: state.ONLINE_USERS,
+        miningUsers: state.MINING_USERS,
+      },
     })
 
     /**
      * Emit balance on connect
      */
     socket.emit(SocketEnum.TOTAL_BALANCE, {
-      total: CURRENT_BALANCE,
-      target: ROUND_TARGET,
+      total: state.CURRENT_BALANCE,
+      target: state.ROUND_TARGET,
     })
 
+    // JOIN_ROUND
     socket.on(SocketEnum.JOIN_ROUND, async data => {
       const { userId } = data
 
@@ -164,52 +199,57 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       const res = await participantService.add(userId, socketId)
 
       if (res.notification.success) {
-        MINING_USERS++
-        ONLINE_USERS = io.of('/').sockets.size
-
         socket.emit(SocketEnum.JOIN_SUCCESS, 'Você entrou na rodada.')
 
-        io.emit(SocketEnum.ONLINE_USERS, {
-          onlineUsers: ONLINE_USERS,
-          miningUsers: MINING_USERS,
+        state.ONLINE_USERS = io.of('/').sockets.size
+        state.MINING_USERS++
+
+        onlineUsersSubject.notify({
+          io,
+          props: {
+            onlineUsers: state.ONLINE_USERS,
+            miningUsers: state.MINING_USERS,
+          },
         })
       } else if (!res.notification.success)
         socket.emit(SocketEnum.JOIN_FAILED, res.notification.message)
     })
 
+    // LEAVE_ROUND
     socket.on(SocketEnum.LEAVE_ROUND, async data => {
       const { userId } = data
 
-      if (MINING_USERS > 0) {
-        MINING_USERS--
-      }
+      if (state.MINING_USERS > 0) state.MINING_USERS--
 
-      ONLINE_USERS = io.of('/').sockets.size
+      state.ONLINE_USERS = io.of('/').sockets.size
 
-      io.emit(SocketEnum.ONLINE_USERS, {
-        onlineUsers: ONLINE_USERS,
-        miningUsers: MINING_USERS,
+      onlineUsersSubject.notify({
+        io,
+        props: {
+          onlineUsers: state.ONLINE_USERS,
+          miningUsers: state.MINING_USERS,
+        },
       })
 
       console.log('LEAVE_ROUND', data)
       await participantService.delete(userId, socketId)
     })
 
+    // DISCONNECT
     socket.on('disconnect', async () => {
       console.log('DISCONNECTED', socketId)
-      ONLINE_USERS = io.of('/').sockets.size
+      state.ONLINE_USERS = io.of('/').sockets.size
 
       const deletedParticipant = await participantService.delete(null, socketId)
 
-      if (deletedParticipant.notification.success) {
-        if (MINING_USERS > 0) {
-          MINING_USERS--
-        }
-      }
+      if (deletedParticipant.notification.success && state.MINING_USERS > 0) state.MINING_USERS--
 
-      io.emit(SocketEnum.ONLINE_USERS, {
-        onlineUsers: ONLINE_USERS,
-        miningUsers: MINING_USERS,
+      onlineUsersSubject.notify({
+        io,
+        props: {
+          onlineUsers: state.ONLINE_USERS,
+          miningUsers: state.MINING_USERS,
+        },
       })
     })
   })

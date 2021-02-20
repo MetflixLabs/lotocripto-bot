@@ -7,5 +7,5 @@ export interface IParticipantService {
   update(id: string, participant: IParticipant): Promise<IOutputResult<IParticipant>>
   delete(userId: unknown, socketId?: string): Promise<IOutputResult<IParticipant>>
   getParticipantByTime(uptime: number): Promise<IOutputResult<IUser> | null>
-  getAllParticipants(): Promise<IOutputResult<IUser[]> | null>
+  getParticipantLenght(): Promise<IOutputResult<number> | null>
 }
