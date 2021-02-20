@@ -16,7 +16,7 @@ export class ParticipantService implements IParticipantService {
 
       return res.data
     } catch (error) {
-      return error.response.data
+      throw new Error(error.response.data.notification.message)
     }
   }
 
@@ -47,18 +47,18 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async getWinnerByTime(uptime: number): Promise<IOutputResult<IUser> | undefined> {
+  async getParticipantByTime(uptime: number): Promise<IOutputResult<IUser> | null> {
     try {
-      const res = await lotocriptoApi.get(LotocriptoEndpointEnum.WINNER, {
+      const res = await lotocriptoApi.get(LotocriptoEndpointEnum.ELEGIBLE, {
         params: {
           uptime,
         },
         withCredentials: true,
       })
 
-      return res?.data
+      return res.data
     } catch (error) {
-      console.log(error)
+      throw new Error(error.response.data.notification.message)
     }
   }
 }
