@@ -24,14 +24,14 @@ export class WinnerService implements IWinnerService {
       const res = await lotocriptoApi.get(LotocriptoEndpointEnum.WINNERS, {
         params: {
           page,
-          limit,
+          limit
         },
-        withCredentials: true,
+        withCredentials: true
       })
 
       return res.data
     } catch (error) {
-      throw new Error(error.response.data.notification.message)
+      return error.response.data
     }
   }
 }
