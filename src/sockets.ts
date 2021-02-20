@@ -133,6 +133,12 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     { stopOnError: false }
   )
 
+  const allParticipants = await participantService.getAllParticipants()
+
+  if (allParticipants?.data) {
+    MINING_USERS = allParticipants.data.length
+  }
+
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
     ONLINE_USERS = io.of('/').sockets.size

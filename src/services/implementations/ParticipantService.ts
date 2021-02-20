@@ -61,4 +61,16 @@ export class ParticipantService implements IParticipantService {
       throw new Error(error.response.data.notification.message)
     }
   }
+
+  async getAllParticipants(): Promise<IOutputResult<IUser[]> | null> {
+    try {
+      const res = await lotocriptoApi.get(LotocriptoEndpointEnum.PARTICIPANTS, {
+        withCredentials: true,
+      })
+
+      return res.data
+    } catch (error) {
+      throw new Error(error.response.data.notification.message)
+    }
+  }
 }
