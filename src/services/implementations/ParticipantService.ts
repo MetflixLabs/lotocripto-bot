@@ -16,7 +16,7 @@ export class ParticipantService implements IParticipantService {
 
       return res.data
     } catch (error) {
-      throw new Error(error.response.data.notification.message)
+      return error.response.data
     }
   }
 
@@ -38,7 +38,7 @@ export class ParticipantService implements IParticipantService {
     try {
       const res = await lotocriptoApi.delete(LotocriptoEndpointEnum.PARTICIPANTS, {
         data: { userId, socketId },
-        withCredentials: true,
+        withCredentials: true
       })
 
       return res.data
@@ -51,9 +51,9 @@ export class ParticipantService implements IParticipantService {
     try {
       const res = await lotocriptoApi.get(LotocriptoEndpointEnum.ELEGIBLE, {
         params: {
-          uptime,
+          uptime
         },
-        withCredentials: true,
+        withCredentials: true
       })
 
       return res.data
@@ -65,7 +65,7 @@ export class ParticipantService implements IParticipantService {
   async getParticipantLenght(): Promise<IOutputResult<number> | null> {
     try {
       const res = await lotocriptoApi.get(LotocriptoEndpointEnum.PARTICIPANTS, {
-        withCredentials: true,
+        withCredentials: true
       })
 
       return res.data

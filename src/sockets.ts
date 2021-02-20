@@ -33,7 +33,7 @@ const state = {
   CURRENT_BALANCE: 0,
   ROUND_TARGET: 1,
   ROUND_DURATION: 600_000, // 10min in milisec
-  CHECK_BALANCE_INTERVAL: 30000,
+  CHECK_BALANCE_INTERVAL: 30000
 }
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
@@ -52,7 +52,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       console.log(`[Sufficient Balance]: Will pick a winner in the first interval iteration`)
       balanceSubject.notify({
         io,
-        props: undefined,
+        props: undefined
       })
     }
   } catch (error) {
@@ -73,8 +73,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
         io,
         props: {
           target: state.ROUND_TARGET,
-          total: state.CURRENT_BALANCE,
-        },
+          total: state.CURRENT_BALANCE
+        }
       })
 
       if (state.CURRENT_BALANCE >= state.ROUND_TARGET) {
@@ -91,7 +91,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
             console.log(`[Nenhum ganhador válido]: nenhum endereço de wallet retornado`)
             balanceSubject.notify({
               io,
-              props: undefined,
+              props: undefined
             })
 
             return
@@ -108,7 +108,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
              */
             return balanceSubject.notify({
               io,
-              props: undefined,
+              props: undefined
             })
           }
 
@@ -131,13 +131,13 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
             io,
             props: {
               target: state.ROUND_TARGET,
-              total: state.CURRENT_BALANCE,
-            },
+              total: state.CURRENT_BALANCE
+            }
           })
 
           winnerSubject.notify({
             io,
-            props: winner?.data,
+            props: winner?.data
           })
 
           // update last winners collection and send to front
@@ -145,7 +145,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
             await winnerService.add({
               amount: receipt.paidAmount ?? 0,
               transactionId: receipt.blockchainReceipt,
-              userId: winner?.data?.id,
+              userId: winner?.data?.id
             })
 
             const lastWinners = await winnerService.list()
@@ -156,7 +156,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
           console.log(`[Nenhum ganhador válido]: ${error}`)
           balanceSubject.notify({
             io,
-            props: undefined,
+            props: undefined
           })
         }
       }
@@ -179,8 +179,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       io,
       props: {
         onlineUsers: state.ONLINE_USERS,
-        miningUsers: state.MINING_USERS,
-      },
+        miningUsers: state.MINING_USERS
+      }
     })
 
     /**
@@ -188,8 +188,14 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
      */
     socket.emit(SocketEnum.TOTAL_BALANCE, {
       total: state.CURRENT_BALANCE,
-      target: state.ROUND_TARGET,
+      target: state.ROUND_TARGET
     })
+
+    /**
+     * Emit last winners on connect
+     */
+    const lastWinners = await winnerService.list()
+    socket.emit(SocketEnum.LAST_WINNERS, { lastWinners })
 
     // JOIN_ROUND
     socket.on(SocketEnum.JOIN_ROUND, async data => {
@@ -208,8 +214,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
           io,
           props: {
             onlineUsers: state.ONLINE_USERS,
-            miningUsers: state.MINING_USERS,
-          },
+            miningUsers: state.MINING_USERS
+          }
         })
       } else if (!res.notification.success)
         socket.emit(SocketEnum.JOIN_FAILED, res.notification.message)
@@ -227,8 +233,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
         io,
         props: {
           onlineUsers: state.ONLINE_USERS,
-          miningUsers: state.MINING_USERS,
-        },
+          miningUsers: state.MINING_USERS
+        }
       })
 
       console.log('LEAVE_ROUND', data)
@@ -248,8 +254,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
         io,
         props: {
           onlineUsers: state.ONLINE_USERS,
-          miningUsers: state.MINING_USERS,
-        },
+          miningUsers: state.MINING_USERS
+        }
       })
     })
   })
