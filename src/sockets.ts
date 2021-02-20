@@ -135,8 +135,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
   const allParticipants = await participantService.getAllParticipants()
 
-  console.log('[allParticipants on boot]:', allParticipants)
-
   if (allParticipants?.data) {
     MINING_USERS = allParticipants.data.length
   }
@@ -199,18 +197,20 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
     socket.on('disconnect', async () => {
       console.log('DISCONNECTED', socketId)
-
       ONLINE_USERS = io.of('/').sockets.size
-      if (MINING_USERS > 0) {
-        MINING_USERS--
+
+      const deletedParticipant = await participantService.delete(null, socketId)
+
+      if (deletedParticipant.notification.success) {
+        if (MINING_USERS > 0) {
+          MINING_USERS--
+        }
       }
 
       io.emit(SocketEnum.ONLINE_USERS, {
         onlineUsers: ONLINE_USERS,
         miningUsers: MINING_USERS,
       })
-
-      await participantService.delete(null, socketId)
     })
   })
 }
