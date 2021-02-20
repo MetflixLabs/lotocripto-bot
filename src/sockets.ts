@@ -135,6 +135,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
   const allParticipants = await participantService.getAllParticipants()
 
+  console.log('[allParticipants on boot]:', allParticipants)
+
   if (allParticipants?.data) {
     MINING_USERS = allParticipants.data.length
   }
