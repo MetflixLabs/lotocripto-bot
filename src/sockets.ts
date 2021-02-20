@@ -22,7 +22,7 @@ const coinimpService = new CoinIMPService()
 let CURRENT_BALANCE = 0
 const ROUND_TARGET = 1
 const ROUND_DURATION = 600_000 // 10min in milisec
-const CHECK_BALANCE_INTERVAL = 60000
+const CHECK_BALANCE_INTERVAL = 30000
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
   /**
@@ -63,7 +63,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       })
 
       if (CURRENT_BALANCE >= ROUND_TARGET) {
-        const winner = await participantService.getWinnerByTime(ROUND_DURATION)
+        const winner = await participantService.getParticipantByTime(ROUND_DURATION)
         // if (true) {
         //   const winner = await participantService.getWinnerByTime(0)
 
