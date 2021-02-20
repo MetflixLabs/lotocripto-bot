@@ -3,5 +3,6 @@ export enum LotocriptoEndpointEnum {
   USER_STATE = '/userState',
   PARTICIPANTS = '/participants',
   LOGIN = '/login',
-  WINNER = '/winner',
+  WINNERS = '/winners',
+  ELEGIBLE = '/elegible',
 }
