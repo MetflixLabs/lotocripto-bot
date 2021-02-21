@@ -13,9 +13,8 @@ import { IEmit } from './interfaces/IEmit'
 import { IOnlineUsers } from './interfaces/IOnlineUsers'
 import { emitOnlineUsers } from './events/emitOnlineUsers'
 import { WinnerService } from './services/implementations/WinnerService'
-import { userInfo } from 'os'
 
-const winnerSubject = Observable<IEmit<IUser | undefined>>()
+const winnerSubject = Observable<IEmit<IUser | undefined | Record<string, unknown>>>()
 const balanceSubject = Observable<IEmit<IBalance | undefined>>()
 const onlineUsersSubject = Observable<IEmit<IOnlineUsers>>()
 
@@ -79,8 +78,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
       if (state.CURRENT_BALANCE >= state.ROUND_TARGET) {
         const winner = await participantService.getParticipantByTime(state.ROUND_DURATION)
-        // if (true) {
-        //   const winner = await participantService.getWinnerByTime(0)
 
         try {
           const walletAddress = winner?.data?.walletAddress
@@ -89,9 +86,9 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
           if (!walletAddress) {
             console.log(`[Nenhum ganhador válido]: nenhum endereço de wallet retornado`)
-            balanceSubject.notify({
+            winnerSubject.notify({
               io,
-              props: undefined
+              props: {}
             })
 
             return
@@ -106,10 +103,12 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
             /**
              * Will grab another winner in 15s
              */
-            return balanceSubject.notify({
+            winnerSubject.notify({
               io,
-              props: undefined
+              props: {}
             })
+
+            return
           }
 
           /**
@@ -143,7 +142,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
           // update last winners collection and send to front
           if (receipt.paidAmount && receipt.blockchainReceipt) {
             await winnerService.add({
-              amount: receipt.paidAmount ?? 0,
+              amount: receipt.paidAmount,
               transactionId: receipt.blockchainReceipt,
               userId: winner?.data?.id
             })
@@ -154,9 +153,9 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
           }
         } catch (error) {
           console.log(`[Nenhum ganhador válido]: ${error}`)
-          balanceSubject.notify({
+          winnerSubject.notify({
             io,
-            props: undefined
+            props: {}
           })
         }
       }

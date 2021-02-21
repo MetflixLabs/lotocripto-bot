@@ -58,13 +58,16 @@ export class ParticipantService implements IParticipantService {
 
       return res.data
     } catch (error) {
-      throw new Error(error.response.data.notification.message)
+      console.log(
+        `Error on getting participant by time: ${error.response.data.notification.message}`
+      )
+      return null
     }
   }
 
   async getParticipantLenght(): Promise<IOutputResult<number> | null> {
     try {
-      const res = await lotocriptoApi.get(LotocriptoEndpointEnum.PARTICIPANTS, {
+      const res = await lotocriptoApi.get(LotocriptoEndpointEnum.PARTICIPANTS_LENGTH, {
         withCredentials: true
       })
 

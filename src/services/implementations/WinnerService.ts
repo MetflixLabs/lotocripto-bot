@@ -7,11 +7,9 @@ import { IWinnerService } from '../IWinnerService'
 export class WinnerService implements IWinnerService {
   async add(winner: IWinnerRequest): Promise<IOutputResult<undefined>> {
     try {
-      const res = await lotocriptoApi.post(
-        LotocriptoEndpointEnum.WINNERS,
-        { winner },
-        { withCredentials: true }
-      )
+      const res = await lotocriptoApi.post(LotocriptoEndpointEnum.WINNERS, winner, {
+        withCredentials: true
+      })
 
       return res.data
     } catch (error) {
