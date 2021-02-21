@@ -73,7 +73,7 @@ export class ParticipantService implements IParticipantService {
 
       return res.data
     } catch (error) {
-      throw new Error(error.response.data.notification.message)
+      return null
     }
   }
 }

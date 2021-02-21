@@ -166,7 +166,11 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
   const allParticipants = await participantService.getParticipantLenght()
 
-  if (allParticipants?.data) state.MINING_USERS = allParticipants.data
+  if (allParticipants?.data) {
+    state.MINING_USERS = allParticipants.data
+  } else {
+    state.MINING_USERS = 0
+  }
 
   // CONNECT
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
