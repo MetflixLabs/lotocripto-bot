@@ -111,6 +111,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
            * Pay the winner
            */
           const receipt = await coinimpService.payout(walletAddress, totalToPay)
+          console.log('[Payment Receipt]: ', receipt)
 
           if (receipt.status === 'error') {
             /**
@@ -123,14 +124,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
             return
           }
-
-          /**
-           * Success payout, now grab the administration tax
-           */
-
-          if (process.env.MINTME_WALLET)
-            await coinimpService.payout(process.env.MINTME_WALLET, totalTax)
-          console.log('[Payment Receipt]: ', receipt)
 
           /**
            * Refetch balance
@@ -178,6 +171,13 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
             io.emit(SocketEnum.LAST_WINNERS, { lastWinners })
           }
+
+          /**
+           * Success payout, now grab the administration tax
+           */
+
+          if (process.env.MINTME_WALLET)
+            await coinimpService.payout(process.env.MINTME_WALLET, totalTax)
         } catch (error) {
           console.log(`[Nenhum ganhador válido]: ${error}`)
           winnerSubject.notify({
