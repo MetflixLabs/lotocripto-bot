@@ -238,7 +238,14 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
         socket.emit(SocketEnum.JOIN_SUCCESS, 'Você entrou na rodada.')
 
         state.ONLINE_USERS = io.of('/').sockets.size
-        state.MINING_USERS++
+
+        /**
+         * Update mining users count
+         */
+        const allParticipants = await participantService.getParticipantLenght()
+        if (allParticipants?.data) {
+          state.MINING_USERS = allParticipants.data
+        }
 
         onlineUsersSubject.notify({
           io,
@@ -259,9 +266,15 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
       console.log('LEAVE_ROUND', data)
 
-      const deletedParticipant = await participantService.delete(userId, socketId)
+      await participantService.delete(userId, socketId)
 
-      if (deletedParticipant.notification.success && state.MINING_USERS > 0) state.MINING_USERS--
+      /**
+       * Update mining users count
+       */
+      const allParticipants = await participantService.getParticipantLenght()
+      if (allParticipants?.data) {
+        state.MINING_USERS = allParticipants.data
+      }
 
       onlineUsersSubject.notify({
         io,
@@ -277,9 +290,15 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       console.log('DISCONNECTED', socketId)
       state.ONLINE_USERS = io.of('/').sockets.size
 
-      const deletedParticipant = await participantService.delete(null, socketId)
+      await participantService.delete(null, socketId)
 
-      if (deletedParticipant.notification.success && state.MINING_USERS > 0) state.MINING_USERS--
+      /**
+       * Update mining users count
+       */
+      const allParticipants = await participantService.getParticipantLenght()
+      if (allParticipants?.data) {
+        state.MINING_USERS = allParticipants.data
+      }
 
       onlineUsersSubject.notify({
         io,
