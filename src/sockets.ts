@@ -228,9 +228,13 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     socket.on(SocketEnum.LEAVE_ROUND, async data => {
       const { userId } = data
 
-      if (state.MINING_USERS > 0) state.MINING_USERS--
-
       state.ONLINE_USERS = io.of('/').sockets.size
+
+      console.log('LEAVE_ROUND', data)
+
+      const deletedParticipant = await participantService.delete(userId, socketId)
+
+      if (deletedParticipant.notification.success && state.MINING_USERS > 0) state.MINING_USERS--
 
       onlineUsersSubject.notify({
         io,
@@ -239,9 +243,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
           miningUsers: state.MINING_USERS
         }
       })
-
-      console.log('LEAVE_ROUND', data)
-      await participantService.delete(userId, socketId)
     })
 
     // DISCONNECT
