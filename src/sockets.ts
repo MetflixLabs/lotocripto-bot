@@ -30,10 +30,20 @@ const state = {
   ONLINE_USERS: 0,
   MINING_USERS: 0,
   CURRENT_BALANCE: 0,
+  VALID_TARGETS: [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
   ROUND_TARGET: 1,
-  ROUND_DURATION: 600_000, // 10min in milisec
+  ROUND_DURATION: 1200_000, // 20min in milisec
   CHECK_BALANCE_INTERVAL: 30000
 }
+
+/**
+ *
+ * Initial dynamic target
+ */
+
+state.ROUND_TARGET = state.VALID_TARGETS[Math.floor(Math.random() * state.VALID_TARGETS.length)]
+
+console.log('[Initial Dynamic Target]', state.ROUND_TARGET)
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
   /**
@@ -51,7 +61,10 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       console.log(`[Sufficient Balance]: Will pick a winner in the first interval iteration`)
       balanceSubject.notify({
         io,
-        props: undefined
+        props: {
+          target: state.ROUND_TARGET,
+          total: state.CURRENT_BALANCE
+        }
       })
     }
   } catch (error) {
@@ -125,6 +138,20 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
           const balance = await coinimpService.getBalance()
           const { message } = balance
           state.CURRENT_BALANCE = parseFloat(message)
+
+          /**
+           *
+           * set the new dynamic target
+           */
+
+          const targetsWithoutCurrent = state.VALID_TARGETS.filter(
+            validTarget => validTarget !== state.ROUND_TARGET
+          )
+
+          state.ROUND_TARGET =
+            targetsWithoutCurrent[Math.floor(Math.random() * targetsWithoutCurrent.length)]
+
+          console.log('[New Dynamic Target]', state.ROUND_TARGET)
 
           balanceSubject.notify({
             io,
