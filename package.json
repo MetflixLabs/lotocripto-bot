@@ -8,6 +8,8 @@
     "start": "ts-node --transpile-only src/server.ts"
   },
   "dependencies": {
+    "@sentry/node": "^6.2.0",
+    "@sentry/tracing": "^6.2.0",
     "axios": "^0.21.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
