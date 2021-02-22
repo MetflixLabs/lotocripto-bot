@@ -5,6 +5,7 @@ import { LotocriptoEndpointEnum } from '../../enums/LotocriptoEndpointEnum'
 import { IOutputResult } from '../../interfaces/IOutputResult'
 import { IUser } from '../../interfaces/IUser'
 
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
 export class ParticipantService implements IParticipantService {
   async add(userId: string, socketId: string): Promise<IOutputResult<IParticipant>> {
     try {
@@ -34,15 +35,40 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async delete(userId: unknown, socketId?: string): Promise<IOutputResult<IParticipant>> {
+  async delete(
+    userId: unknown,
+    updateCounter: () => Promise<void>,
+    socketId?: string
+  ): Promise<IOutputResult<IParticipant> | undefined> {
+    console.log(`[Delete participant] Trying to delete userId ${userId} and socketId ${socketId}`)
+
     try {
       const res = await lotocriptoApi.delete(LotocriptoEndpointEnum.PARTICIPANTS, {
         data: { userId, socketId },
         withCredentials: true
       })
 
+      console.log(
+        `[Delete participant] Successfully deleted with userId ${userId} and socketId ${socketId}`
+      )
+
+      updateCounter()
+
       return res.data
     } catch (error) {
+      if (!error.response) {
+        // Api failed to execute action, retry
+        console.log(
+          `[Delete participant] Failed to receive an API response for deleting userId ${userId} and socketId ${socketId} - trying again in 5s`
+        )
+
+        await delay(5000)
+
+        this.delete(userId, updateCounter, socketId)
+
+        return
+      }
+
       return error.response.data
     }
   }

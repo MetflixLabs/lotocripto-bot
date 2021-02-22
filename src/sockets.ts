@@ -266,23 +266,29 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
       console.log('LEAVE_ROUND', data)
 
-      await participantService.delete(userId, socketId)
+      participantService.delete(
+        userId,
+        async () => {
+          /**
+           * Update mining users count
+           */
+          const allParticipants = await participantService.getParticipantLenght()
+          if (allParticipants?.data) {
+            state.MINING_USERS = allParticipants.data
+          }
 
-      /**
-       * Update mining users count
-       */
-      const allParticipants = await participantService.getParticipantLenght()
-      if (allParticipants?.data) {
-        state.MINING_USERS = allParticipants.data
-      }
+          onlineUsersSubject.notify({
+            io,
+            props: {
+              onlineUsers: state.ONLINE_USERS,
+              miningUsers: state.MINING_USERS
+            }
+          })
+        },
+        socketId
+      )
 
-      onlineUsersSubject.notify({
-        io,
-        props: {
-          onlineUsers: state.ONLINE_USERS,
-          miningUsers: state.MINING_USERS
-        }
-      })
+      console.log('[Leave round] After trying to delete participant log :)')
     })
 
     // DISCONNECT
@@ -290,23 +296,29 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       console.log('DISCONNECTED', socketId)
       state.ONLINE_USERS = io.of('/').sockets.size
 
-      await participantService.delete(null, socketId)
+      participantService.delete(
+        null,
+        async () => {
+          /**
+           * Update mining users count
+           */
+          const allParticipants = await participantService.getParticipantLenght()
+          if (allParticipants?.data) {
+            state.MINING_USERS = allParticipants.data
+          }
 
-      /**
-       * Update mining users count
-       */
-      const allParticipants = await participantService.getParticipantLenght()
-      if (allParticipants?.data) {
-        state.MINING_USERS = allParticipants.data
-      }
+          onlineUsersSubject.notify({
+            io,
+            props: {
+              onlineUsers: state.ONLINE_USERS,
+              miningUsers: state.MINING_USERS
+            }
+          })
+        },
+        socketId
+      )
 
-      onlineUsersSubject.notify({
-        io,
-        props: {
-          onlineUsers: state.ONLINE_USERS,
-          miningUsers: state.MINING_USERS
-        }
-      })
+      console.log('[Disconnect] After trying to delete participant log :)')
     })
   })
 }
