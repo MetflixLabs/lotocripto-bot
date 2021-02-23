@@ -203,14 +203,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
           console.log('[New Dynamic Target]', state.ROUND_TARGET)
 
-          balanceSubject.notify({
-            io,
-            props: {
-              target: state.ROUND_TARGET,
-              total: state.CURRENT_BALANCE
-            }
-          })
-
           winnerSubject.notify({
             io,
             props: winner?.data
@@ -237,6 +229,14 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
           if (process.env.MINTME_WALLET)
             await coinimpService.payout(process.env.MINTME_WALLET, totalTax)
+
+          balanceSubject.notify({
+            io,
+            props: {
+              target: state.ROUND_TARGET,
+              total: state.CURRENT_BALANCE
+            }
+          })
         } catch (error) {
           console.log(`[Nenhum ganhador válido]: ${error}`)
           winnerSubject.notify({
