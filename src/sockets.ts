@@ -46,7 +46,7 @@ state.ROUND_TARGET = state.VALID_TARGETS[Math.floor(Math.random() * state.VALID_
 console.log('[Initial Dynamic Target]', state.ROUND_TARGET)
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
-  const cleanupInactiveParticipants = async () => {
+  const cleanupInactiveParticipants = async (shouldEmitRestart = false) => {
     console.log(`[Participant Cleanup] Initializing safety cleanup`)
     const allParticipantSocketsList = await participantService.getParticipantAllSockets()
     const allSocketIoListRaw = await io.allSockets()
@@ -79,21 +79,25 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
         }
       })
 
-      /**
-       * Update mining users count
-       */
-      const allParticipants = await participantService.getParticipantLenght()
-      if (allParticipants?.data) {
-        state.MINING_USERS = allParticipants.data
-      }
-
-      onlineUsersSubject.notify({
-        io,
-        props: {
-          onlineUsers: state.ONLINE_USERS,
-          miningUsers: state.MINING_USERS
+      if (shouldEmitRestart) {
+        io.emit(SocketEnum.SERVER_RESTART, {})
+      } else {
+        /**
+         * Update mining users count
+         */
+        const allParticipants = await participantService.getParticipantLenght()
+        if (allParticipants?.data) {
+          state.MINING_USERS = allParticipants.data
         }
-      })
+
+        onlineUsersSubject.notify({
+          io,
+          props: {
+            onlineUsers: state.ONLINE_USERS,
+            miningUsers: state.MINING_USERS
+          }
+        })
+      }
     }
   }
 
@@ -252,7 +256,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     state.MINING_USERS = 0
   }
 
-  io.emit(SocketEnum.SERVER_RESTART, {})
+  cleanupInactiveParticipants(true)
 
   // CONNECT
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
