@@ -102,4 +102,16 @@ export class ParticipantService implements IParticipantService {
       return null
     }
   }
+
+  async getParticipantAllSockets(): Promise<IOutputResult<string[]> | null> {
+    try {
+      const res = await lotocriptoApi.get(LotocriptoEndpointEnum.PARTICIPANTS_ALLSOCKETS, {
+        withCredentials: true
+      })
+
+      return res.data
+    } catch (error) {
+      return null
+    }
+  }
 }

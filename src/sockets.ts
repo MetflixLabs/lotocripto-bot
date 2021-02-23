@@ -46,6 +46,57 @@ state.ROUND_TARGET = state.VALID_TARGETS[Math.floor(Math.random() * state.VALID_
 console.log('[Initial Dynamic Target]', state.ROUND_TARGET)
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
+  const cleanupInactiveParticipants = async () => {
+    console.log(`[Participant Cleanup] Initializing safety cleanup`)
+    const allParticipantSocketsList = await participantService.getParticipantAllSockets()
+    const allSocketIoListRaw = await io.allSockets()
+    const allSocketIoList: string[] = []
+
+    allSocketIoListRaw.forEach(socketValue => allSocketIoList.push(socketValue))
+
+    if (allParticipantSocketsList?.data) {
+      const allParticipantSockets = allParticipantSocketsList.data
+
+      allParticipantSockets.forEach(participantSocket => {
+        if (!allSocketIoList.includes(participantSocket)) {
+          /**
+           * User not connected anymore - we should clean it from the participants collection
+           */
+
+          console.log(
+            `[Participant Cleanup] Participant with socket ${participantSocket} is not connected anymore, removing it from participants list`
+          )
+
+          participantService.delete(
+            null,
+            async () => {
+              console.log(
+                `[Participant Cleanup] Successfully removed participant with socket ${participantSocket}`
+              )
+            },
+            participantSocket
+          )
+        }
+      })
+
+      /**
+       * Update mining users count
+       */
+      const allParticipants = await participantService.getParticipantLenght()
+      if (allParticipants?.data) {
+        state.MINING_USERS = allParticipants.data
+      }
+
+      onlineUsersSubject.notify({
+        io,
+        props: {
+          onlineUsers: state.ONLINE_USERS,
+          miningUsers: state.MINING_USERS
+        }
+      })
+    }
+  }
+
   /**
    * Initial balance fetch
    */
@@ -171,6 +222,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
             io.emit(SocketEnum.LAST_WINNERS, { lastWinners })
           }
+
+          cleanupInactiveParticipants()
 
           /**
            * Success payout, now grab the administration tax
