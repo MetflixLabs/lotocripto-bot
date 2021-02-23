@@ -81,23 +81,23 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
       if (shouldEmitRestart) {
         io.emit(SocketEnum.SERVER_RESTART, {})
-      } else {
-        /**
-         * Update mining users count
-         */
-        const allParticipants = await participantService.getParticipantLenght()
-        if (allParticipants?.data) {
-          state.MINING_USERS = allParticipants.data
-        }
-
-        onlineUsersSubject.notify({
-          io,
-          props: {
-            onlineUsers: state.ONLINE_USERS,
-            miningUsers: state.MINING_USERS
-          }
-        })
       }
+
+      /**
+       * Update mining users count
+       */
+      const allParticipants = await participantService.getParticipantLenght()
+      if (allParticipants?.data) {
+        state.MINING_USERS = allParticipants.data
+      }
+
+      onlineUsersSubject.notify({
+        io,
+        props: {
+          onlineUsers: state.ONLINE_USERS,
+          miningUsers: state.MINING_USERS
+        }
+      })
     }
   }
 
