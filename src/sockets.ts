@@ -248,6 +248,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     { stopOnError: false }
   )
 
+  await cleanupInactiveParticipants(true)
+
   const allParticipants = await participantService.getParticipantLenght()
 
   if (allParticipants?.data) {
@@ -255,8 +257,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
   } else {
     state.MINING_USERS = 0
   }
-
-  await cleanupInactiveParticipants(true)
 
   // CONNECT
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
