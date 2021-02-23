@@ -47,7 +47,9 @@ console.log('[Initial Dynamic Target]', state.ROUND_TARGET)
 
 const sockets = async (io: SocketIO.Server): Promise<void> => {
   const cleanupInactiveParticipants = async (shouldEmitRestart = false) => {
-    console.log(`[Participant Cleanup] Initializing safety cleanup`)
+    console.log(
+      `[Participant Cleanup] Initializing safety cleanup with shouldEmitRestart = ${shouldEmitRestart}`
+    )
     const allParticipantSocketsList = await participantService.getParticipantAllSockets()
     const allSocketIoListRaw = await io.allSockets()
     const allSocketIoList: string[] = []
