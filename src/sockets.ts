@@ -252,6 +252,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     state.MINING_USERS = 0
   }
 
+  io.emit(SocketEnum.SERVER_RESTART, {})
+
   // CONNECT
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
     const socketId = socket.id
