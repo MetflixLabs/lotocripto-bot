@@ -256,7 +256,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     state.MINING_USERS = 0
   }
 
-  cleanupInactiveParticipants(true)
+  await cleanupInactiveParticipants(true)
 
   // CONNECT
   io.on(SocketEnum.CONNECT, async (socket: Socket) => {
