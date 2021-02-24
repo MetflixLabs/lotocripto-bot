@@ -246,6 +246,7 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
   await cleanupInactiveParticipants()
 
+  console.log('>>> Emit SERVER_RESTART to all connected sockets')
   io.emit(SocketEnum.SERVER_RESTART, {})
 
   const allParticipants = await participantService.getParticipantLenght()
