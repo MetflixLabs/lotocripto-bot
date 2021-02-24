@@ -32,12 +32,12 @@ export class CoinIMPService implements ICoinIMPService {
         {
           name: 'REMEMBERME',
           value: process.env.COINIMP_COOKIE,
-          domain: 'www.coinimp.com',
-        },
+          domain: 'www.coinimp.com'
+        }
       ]
 
       const browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
         // headless: false, // launch a browser
         // executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' // - to execute chrome instead of chromium
       })
@@ -46,6 +46,8 @@ export class CoinIMPService implements ICoinIMPService {
        * Set cookies and navigate
        */
       const page = await browser.newPage()
+
+      page.setDefaultNavigationTimeout(60000)
       await page.setCookie(...cookies)
       await page.goto('https://www.coinimp.com/wallet')
 
@@ -68,7 +70,7 @@ export class CoinIMPService implements ICoinIMPService {
 
         return {
           message: 'Carteira inválida informada',
-          status: 'error',
+          status: 'error'
         }
       }
 
@@ -89,7 +91,7 @@ export class CoinIMPService implements ICoinIMPService {
 
         return {
           message: 'Carteira inválida informada',
-          status: 'error',
+          status: 'error'
         }
       }
 
@@ -123,7 +125,7 @@ export class CoinIMPService implements ICoinIMPService {
 
         return {
           message: 'Fundos insuficentes para efetuar o pagamento',
-          status: 'error',
+          status: 'error'
         }
       }
 
@@ -152,7 +154,7 @@ export class CoinIMPService implements ICoinIMPService {
 
         return {
           message: 'Erro ao efetuar o pagamento',
-          status: 'error',
+          status: 'error'
         }
       }
 
@@ -170,7 +172,7 @@ export class CoinIMPService implements ICoinIMPService {
 
         return {
           message: 'Erro ao efetuar o pagamento',
-          status: 'error',
+          status: 'error'
         }
       }
 
@@ -205,7 +207,7 @@ export class CoinIMPService implements ICoinIMPService {
         message: 'Pagamento efetuado com sucesso',
         paidAmount,
         blockchainReceipt: blockchainReceiptText,
-        status: 'success',
+        status: 'success'
       }
     } catch (error) {
       throw new Error(error)
