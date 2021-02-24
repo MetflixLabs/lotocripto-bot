@@ -177,13 +177,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
           }
 
           /**
-           * Refetch balance
-           */
-          const balance = await coinimpService.getBalance()
-          const { message } = balance
-          state.CURRENT_BALANCE = parseFloat(message)
-
-          /**
            *
            * set the new dynamic target
            */
@@ -221,6 +214,13 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
           if (process.env.MINTME_WALLET)
             await coinimpService.payout(process.env.MINTME_WALLET, totalTax)
+
+          /**
+           * Refetch balance
+           */
+          const balance = await coinimpService.getBalance()
+          const { message } = balance
+          state.CURRENT_BALANCE = parseFloat(message)
 
           balanceSubject.notify({
             io,
