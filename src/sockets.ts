@@ -221,8 +221,6 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
             io.emit(SocketEnum.LAST_WINNERS, { lastWinners })
           }
 
-          cleanupInactiveParticipants()
-
           /**
            * Success payout, now grab the administration tax
            */
@@ -237,6 +235,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
               total: state.CURRENT_BALANCE
             }
           })
+
+          cleanupInactiveParticipants()
         } catch (error) {
           console.log(`[Nenhum ganhador válido]: ${error}`)
           winnerSubject.notify({
