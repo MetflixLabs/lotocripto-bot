@@ -136,7 +136,7 @@ export class CoinIMPService implements ICoinIMPService {
 
       console.log('[Payout] Clicked on confirm payment')
 
-      await page.waitForNavigation()
+      await page.waitForSelector('.alert-success')
 
       /**
        * Confirm the payment
