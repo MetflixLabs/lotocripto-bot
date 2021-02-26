@@ -30,7 +30,7 @@ const state = {
   ONLINE_USERS: 0,
   MINING_USERS: 0,
   CURRENT_BALANCE: 0,
-  VALID_TARGETS: [0.2, 0.3, 0.4, 0.5],
+  VALID_TARGETS: [0.2], // default value: [0.2, 0.3, 0.4, 0.5]
   ROUND_TARGET: 1,
   ROUND_DURATION: 1200_000, // 20min in milisec
   CHECK_BALANCE_INTERVAL: 30000
@@ -178,15 +178,16 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
 
           /**
            *
-           * set the new dynamic target
+           * set the new dynamic target - only if array of targets has more than 1 value
            */
 
-          const targetsWithoutCurrent = state.VALID_TARGETS.filter(
-            validTarget => validTarget !== state.ROUND_TARGET
-          )
-
-          state.ROUND_TARGET =
-            targetsWithoutCurrent[Math.floor(Math.random() * targetsWithoutCurrent.length)]
+          if (state.VALID_TARGETS.length > 1) {
+            const targetsWithoutCurrent = state.VALID_TARGETS.filter(
+              validTarget => validTarget !== state.ROUND_TARGET
+            )
+            state.ROUND_TARGET =
+              targetsWithoutCurrent[Math.floor(Math.random() * targetsWithoutCurrent.length)]
+          }
 
           console.log('[New Dynamic Target]', state.ROUND_TARGET)
 
