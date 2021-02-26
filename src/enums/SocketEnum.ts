@@ -8,5 +8,6 @@ export enum SocketEnum {
   TOTAL_BALANCE = 'total_balance',
   ONLINE_USERS = 'online_users',
   LAST_WINNERS = 'last_winners',
-  SERVER_RESTART = 'server_restart'
+  SERVER_RESTART = 'server_restart',
+  SPECIAL_NOTIFICATION = 'special_notification'
 }

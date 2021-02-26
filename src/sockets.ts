@@ -280,6 +280,11 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       target: state.ROUND_TARGET
     })
 
+    socket.emit(SocketEnum.SPECIAL_NOTIFICATION, {
+      title: 'EVENTO - Final de semana QUICK WINS',
+      description: 'Todas as rodadas fixadas em 0.2 até Segunda-Feira!'
+    })
+
     /**
      * Emit last winners on connect
      */
