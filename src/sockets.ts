@@ -155,6 +155,14 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
               props: {}
             })
 
+            /**
+             * Update mining users count
+             */
+            const allParticipants = await participantService.getParticipantLenght()
+            if (allParticipants?.data) {
+              state.MINING_USERS = allParticipants.data
+            }
+
             return
           }
 
