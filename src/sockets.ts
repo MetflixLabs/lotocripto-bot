@@ -144,7 +144,9 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       console.log(`[Interval] Round target: ${state.ROUND_TARGET}`)
 
       if (state.CURRENT_BALANCE >= state.ROUND_TARGET) {
-        console.log('[Interval] Current balance reached round target, gonna pick up a winner')
+        console.log(
+          `[Interval] Current balance reached round target, gonna pick up a winner based on round duration of: ${state.ROUND_DURATION}`
+        )
         const winner = await participantService.getParticipantByTime(state.ROUND_DURATION)
 
         try {
