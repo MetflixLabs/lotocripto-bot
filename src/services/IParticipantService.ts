@@ -10,6 +10,6 @@ export interface IParticipantService {
     updateCounter: () => Promise<void>,
     socketId?: string
   ): Promise<IOutputResult<IParticipant> | undefined>
-  getParticipantByTime(uptime: number): Promise<IOutputResult<IUser> | null>
+  getParticipantByTime(uptime: string): Promise<IOutputResult<IUser> | null>
   getParticipantLenght(): Promise<IOutputResult<number> | null>
 }

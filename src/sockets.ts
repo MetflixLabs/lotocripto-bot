@@ -32,7 +32,7 @@ const state = {
   CURRENT_BALANCE: 0,
   VALID_TARGETS: [0.2], // default value: [0.2, 0.3, 0.4, 0.5]
   ROUND_TARGET: 1,
-  ROUND_DURATION: 1200_000, // 20min in milisec
+  ROUND_DURATION: '1200_000', // 20min in milisec
   CHECK_BALANCE_INTERVAL: 30000
 }
 
