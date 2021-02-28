@@ -159,6 +159,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
               props: {}
             })
 
+            cleanupInactiveParticipants()
+
             /**
              * Update mining users count
              */
