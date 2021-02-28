@@ -140,6 +140,9 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
         }
       })
 
+      console.log(`[Interval] Current balance: ${state.CURRENT_BALANCE}`)
+      console.log(`[Interval] Round target: ${state.ROUND_TARGET}`)
+
       if (state.CURRENT_BALANCE >= state.ROUND_TARGET) {
         const winner = await participantService.getParticipantByTime(state.ROUND_DURATION)
 
