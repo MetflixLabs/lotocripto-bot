@@ -73,7 +73,7 @@ export class ParticipantService implements IParticipantService {
     }
   }
 
-  async getParticipantByTime(uptime: number): Promise<IOutputResult<IUser> | null> {
+  async getParticipantByTime(uptime: string): Promise<IOutputResult<IUser> | null> {
     try {
       const res = await lotocriptoApi.get(LotocriptoEndpointEnum.ELEGIBLE, {
         params: {
