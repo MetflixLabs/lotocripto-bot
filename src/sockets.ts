@@ -85,6 +85,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
       const allParticipants = await participantService.getParticipantLenght()
       if (allParticipants?.data) {
         state.MINING_USERS = allParticipants.data
+      } else {
+        state.MINING_USERS = 0
       }
 
       onlineUsersSubject.notify({
@@ -169,6 +171,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
             const allParticipants = await participantService.getParticipantLenght()
             if (allParticipants?.data) {
               state.MINING_USERS = allParticipants.data
+            } else {
+              state.MINING_USERS = 0
             }
 
             return
@@ -325,6 +329,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
         const allParticipants = await participantService.getParticipantLenght()
         if (allParticipants?.data) {
           state.MINING_USERS = allParticipants.data
+        } else {
+          state.MINING_USERS = 0
         }
 
         onlineUsersSubject.notify({
@@ -355,6 +361,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
           const allParticipants = await participantService.getParticipantLenght()
           if (allParticipants?.data) {
             state.MINING_USERS = allParticipants.data
+          } else {
+            state.MINING_USERS = 0
           }
 
           onlineUsersSubject.notify({
@@ -385,6 +393,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
           const allParticipants = await participantService.getParticipantLenght()
           if (allParticipants?.data) {
             state.MINING_USERS = allParticipants.data
+          } else {
+            state.MINING_USERS = 0
           }
 
           onlineUsersSubject.notify({
