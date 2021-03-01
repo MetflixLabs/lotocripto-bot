@@ -297,8 +297,8 @@ const sockets = async (io: SocketIO.Server): Promise<void> => {
     })
 
     socket.emit(SocketEnum.SPECIAL_NOTIFICATION, {
-      title: 'EVENTO - Final de semana QUICK WINS',
-      description: 'Todas as rodadas fixadas em 0.2 até Segunda-Feira!'
+      title: 'EVENTO QUICK WINS PROLONGADO',
+      description: 'Todas as rodadas fixadas em 0.2 a semana toda!'
     })
 
     /**
