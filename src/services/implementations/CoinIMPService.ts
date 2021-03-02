@@ -142,7 +142,13 @@ export class CoinIMPService implements ICoinIMPService {
         console.log('[Payout] ERROR: Wait for navigation failed after clicking on confirm payment')
       }
 
-      console.log('[Payout] Wait for navigation is gone, trying to find success message')
+      console.log(
+        '[Payout] Wait for navigation is gone, trying to find success message after waiting a timeout of 10s'
+      )
+
+      page.waitForTimeout(10000)
+
+      console.log('[Payout] Finished waiting 10s, gonna find the success messsage')
 
       /**
        * Confirm the payment
