@@ -5,6 +5,7 @@ module.exports = {
     args: './src/server.ts',
     watch: '.',
     max_memory_restart: '450M',
-    exec_mode: 'cluster'
+    exec_mode: 'cluster',
+    cron_restart: '0 5 * * *'
   }]
 };
